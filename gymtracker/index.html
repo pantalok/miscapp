@@ -164,6 +164,16 @@
     background: none; border: none; color: var(--red);
     font-size: 16px; cursor: pointer; padding: 4px 8px; opacity: 0.6;
   }
+  .instructions-toggle {
+    background: none; border: none; color: var(--blue); font-size: 12px;
+    font-weight: 600; cursor: pointer; padding: 4px 0; margin-bottom: 8px;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .instructions-text {
+    font-size: 13px; color: var(--text2); line-height: 1.5;
+    padding: 10px 12px; background: var(--bg); border-radius: 8px;
+    margin-bottom: 10px; border: 1px solid var(--border);
+  }
 
   /* === HISTORY PAGE === */
   .history-day {
@@ -352,14 +362,13 @@
 // DATA LAYER
 // ========================
 const DEFAULT_EXERCISES = [
-  { id: 'ex1', name: 'Bench Press', muscle: 'Chest', videoUrl: '', defaultWeight: 135, defaultReps: 10 },
-  { id: 'ex2', name: 'Squat', muscle: 'Legs', videoUrl: '', defaultWeight: 185, defaultReps: 8 },
-  { id: 'ex3', name: 'Deadlift', muscle: 'Back', videoUrl: '', defaultWeight: 225, defaultReps: 5 },
-  { id: 'ex4', name: 'Overhead Press', muscle: 'Shoulders', videoUrl: '', defaultWeight: 95, defaultReps: 8 },
-  { id: 'ex5', name: 'Barbell Row', muscle: 'Back', videoUrl: '', defaultWeight: 135, defaultReps: 8 },
-  { id: 'ex6', name: 'Lat Pulldown', muscle: 'Back', videoUrl: '', defaultWeight: 120, defaultReps: 10 },
-  { id: 'ex7', name: 'Bicep Curl', muscle: 'Arms', videoUrl: '', defaultWeight: 30, defaultReps: 12 },
-  { id: 'ex8', name: 'Tricep Extension', muscle: 'Arms', videoUrl: '', defaultWeight: 40, defaultReps: 12 },
+  { id: 'ex1', name: 'Single Arm Farmer Carry', muscle: 'Core', videoUrl: '', defaultWeight: 20, defaultReps: 2, instructions: 'Walk with 1 dumbbell in your hand with a straight arm, dumbbell by your side. Core should be activated and shoulders back, chest up. Walk with perfect posture for 30 seconds. Alternate dumbbell to the other side and walk 30 more seconds.' },
+  { id: 'ex2', name: 'Cable High Row', muscle: 'Back', videoUrl: '', defaultWeight: 20, defaultReps: 10, instructions: 'Set cable at top height, use single handle attachment. Pull the handle down until the elbow reaches the side body. Perform 10 on each side, 2 sets.' },
+  { id: 'ex3', name: 'Cable Tricep Press', muscle: 'Triceps', videoUrl: '', defaultWeight: 25, defaultReps: 10, instructions: 'Set cable at top height, use bar attachment. Standing with an activated core, using an overgrip on the bar with both hands, keep the upper arm in contact with the side body and move from the elbows in a downward press. 10 reps, 2 sets.' },
+  { id: 'ex4', name: 'Shoulder Internal Rotation', muscle: 'Shoulders', videoUrl: '', defaultWeight: 0, defaultReps: 10, instructions: 'Set cable at mid height. Use single handle attachment. With one hand on the handle, bend the elbow 90 degrees and internally rotate at the shoulder joint bringing your hand to the midline. 10 times right and left side, 2 sets.' },
+  { id: 'ex5', name: 'Cable Deadlift', muscle: 'Posterior Chain', videoUrl: '', defaultWeight: 25, defaultReps: 10, instructions: 'Set cable to lowest height. Use bar attachment. With feet shoulder width apart, hinge at hips while pushing the hips back and hold the bar. Using the back of your legs (hamstrings & glutes) pull the bar to the hips as you stand up. 10 reps, 2 sets.' },
+  { id: 'ex6', name: 'Reverse Fly Singles', muscle: 'Upper Back', videoUrl: '', defaultWeight: 5, defaultReps: 10, instructions: 'Stand with feet slightly separated for stability, hinge at hips until the chest is over the knees. Using one arm at a time, lift arm laterally using the muscles in the shoulder blade area (rhomboids, mid-trapezius). 10 on each side, 2 sets.' },
+  { id: 'ex7', name: 'Back Extension', muscle: 'Lower Back', videoUrl: '', defaultWeight: 0, defaultReps: 10, instructions: 'Using the Roman Chair, adjust the pad to sit right below your hip bone. Secure your feet and lower your head towards the floor. Using the muscles in your lower back and glutes, lift yourself to straighten the back. 10 reps, 2 sets.' },
 ];
 
 function loadExercises() {
@@ -431,6 +440,10 @@ function renderLogPage() {
           </div>
         </div>
         <div class="exercise-body" id="body-${ex.id}" style="display:none">
+          ${ex.instructions ? `
+            <button class="instructions-toggle" onclick="toggleInstructions('${ex.id}')">ℹ How to perform</button>
+            <div class="instructions-text" id="instr-${ex.id}" style="display:none">${escHtml(ex.instructions)}</div>
+          ` : ''}
           <div class="set-row">
             <div class="input-wrapper">
               <span>WEIGHT (lbs)</span>
@@ -487,6 +500,11 @@ function toggleCard(exId) {
     body.style.display = 'block';
     card.classList.add('expanded');
   }
+}
+
+function toggleInstructions(exId) {
+  const el = document.getElementById('instr-' + exId);
+  el.style.display = el.style.display === 'none' ? 'block' : 'none';
 }
 
 function adjust(exId, field, dir) {
@@ -598,6 +616,8 @@ function renderSettingsPage() {
       <input value="${escHtml(ex.name)}" onchange="updateExercise(${i},'name',this.value)" placeholder="e.g. Bench Press">
       <div class="field-label" style="margin-top:10px">Muscle Group</div>
       <input value="${escHtml(ex.muscle)}" onchange="updateExercise(${i},'muscle',this.value)" placeholder="e.g. Chest">
+      <div class="field-label" style="margin-top:10px">Instructions</div>
+      <input value="${escHtml(ex.instructions || '')}" onchange="updateExercise(${i},'instructions',this.value)" placeholder="Form cues and notes...">
       <div class="field-label" style="margin-top:10px">Video URL (Google Photos / YouTube)</div>
       <input value="${escHtml(ex.videoUrl)}" onchange="updateExercise(${i},'videoUrl',this.value)" placeholder="https://photos.google.com/...">
       <div style="display:flex;gap:8px;margin-top:10px">
