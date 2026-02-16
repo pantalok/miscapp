@@ -1,23 +1,17 @@
 // ============================================================
 // GymLog Google Apps Script — Deploy as Web App
 // ============================================================
-// Setup:
-// 1. Create a new Google Sheet with 3 tabs: "History", "Exercises", "Meta"
-// 2. In History tab, add headers in row 1:
-//    id | exerciseId | weight | reps | date | time | timestamp | deleted
-// 3. In Exercises tab, add headers in row 1:
-//    id | name | muscle | videoUrl | defaultWeight | defaultReps | instructions | deleted | updatedAt
-// 4. In Meta tab, add headers in row 1:
-//    key | value
-// 5. Open Extensions > Apps Script, paste this code
-// 6. Deploy > New deployment > Web app
-//    - Execute as: Me
-//    - Who has access: Anyone
-// 7. Copy the deployment URL
-// 8. Set your secret token below
+// This script is locked to a single spreadsheet by ID.
+// The @OnlyCurrentDoc annotation restricts the OAuth scope so
+// Google only grants access to this sheet, not your entire Drive.
 // ============================================================
 
+/**
+ * @OnlyCurrentDoc
+ */
+
 const SECRET_TOKEN = 'CHANGE_ME_TO_A_RANDOM_STRING';
+const SPREADSHEET_ID = '1GGT7Jm57Vd3vZMTYIeCAAKHc7ueRsBTdZqx237bZdYo';
 
 function doGet(e) {
   return handleRequest(e);
@@ -63,7 +57,7 @@ function jsonResponse(data, code) {
 
 // ---- getAll ----
 function getAll() {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
 
   const history = sheetToObjects(ss.getSheetByName('History'));
   const exercises = sheetToObjects(ss.getSheetByName('Exercises'));
@@ -81,7 +75,7 @@ function pushHistory(body) {
   const sets = body.sets || [];
   if (sets.length === 0) return { ok: true, added: 0 };
 
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
   const sheet = ss.getSheetByName('History');
   const existing = getColumnValues(sheet, 1); // column A = id
 
@@ -105,7 +99,7 @@ function deleteHistory(body) {
   const id = body.id;
   if (!id) return { ok: false, error: 'Missing id' };
 
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
   const sheet = ss.getSheetByName('History');
   const data = sheet.getDataRange().getValues();
 
@@ -124,7 +118,7 @@ function deleteHistory(body) {
 function pushExercises(body) {
   const exercises = body.exercises || [];
 
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
   const sheet = ss.getSheetByName('Exercises');
 
   // Clear all data rows (keep header)
@@ -151,7 +145,7 @@ function setMeta(body) {
   const value = body.value;
   if (!key) return { ok: false, error: 'Missing key' };
 
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
   const sheet = ss.getSheetByName('Meta');
   const data = sheet.getDataRange().getValues();
 
