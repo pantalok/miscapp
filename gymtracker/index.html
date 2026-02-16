@@ -286,6 +286,44 @@
   }
   .toast.show { transform: translateX(-50%) translateY(0); }
 
+  /* === SYNC INDICATOR === */
+  .sync-status {
+    font-size: 11px; font-weight: 600; padding: 4px 10px;
+    border-radius: 20px; display: flex; align-items: center; gap: 5px;
+    font-family: 'Space Mono', monospace;
+  }
+  .sync-status.syncing { color: var(--blue); background: rgba(68,136,255,0.1); }
+  .sync-status.synced { color: var(--green); background: rgba(68,255,136,0.1); }
+  .sync-status.offline { color: var(--text2); background: var(--surface2); }
+  .sync-status.error { color: var(--red); background: rgba(255,68,68,0.1); }
+  .sync-status.disabled { display: none; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .sync-spinner { width: 10px; height: 10px; border: 2px solid var(--blue); border-top-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite; }
+
+  /* === SYNC SETTINGS === */
+  .sync-setting-group { margin-bottom: 12px; }
+  .sync-setting-group label { font-size: 11px; color: var(--text2); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 4px; }
+  .sync-setting-group input {
+    width: 100%; padding: 10px 12px; background: var(--bg);
+    border: 1px solid var(--border); border-radius: 8px;
+    color: var(--text); font-size: 14px; font-family: 'DM Sans', sans-serif;
+  }
+  .sync-setting-group input:focus { outline: none; border-color: var(--accent); }
+  .sync-info {
+    font-size: 12px; color: var(--text2); padding: 10px 14px;
+    background: var(--surface); border-radius: 10px;
+    border: 1px solid var(--border); margin-bottom: 10px;
+    line-height: 1.6;
+  }
+  .sync-btn {
+    width: 100%; padding: 12px; background: var(--surface);
+    border: 1px solid var(--border); border-radius: var(--radius);
+    color: var(--text); font-size: 13px; font-weight: 600;
+    cursor: pointer; margin-bottom: 8px;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .sync-btn:active { background: var(--surface2); }
+
   /* scrollbar */
   ::-webkit-scrollbar { display: none; }
 
@@ -305,7 +343,10 @@
 
 <div class="header">
   <h1>GYMLOG_</h1>
-  <button class="header-btn" id="todayLabel"></button>
+  <div style="display:flex;align-items:center;gap:8px">
+    <div class="sync-status disabled" id="syncStatus"></div>
+    <button class="header-btn" id="todayLabel"></button>
+  </div>
 </div>
 
 <!-- LOG PAGE -->
@@ -341,6 +382,19 @@
   <div class="section-title">My Exercises</div>
   <div id="exerciseEditor"></div>
   <button class="add-btn" onclick="addExercise()">+ Add Exercise</button>
+
+  <div class="section-title">Cloud Sync</div>
+  <div class="sync-setting-group">
+    <label>Apps Script URL</label>
+    <input id="syncUrl" placeholder="https://script.google.com/macros/s/..." onchange="saveSyncConfig()">
+  </div>
+  <div class="sync-setting-group">
+    <label>Secret Token</label>
+    <input id="syncToken" type="password" placeholder="Your secret token" onchange="saveSyncConfig()">
+  </div>
+  <div class="sync-info" id="syncInfo">Not configured</div>
+  <button class="sync-btn" onclick="manualSync()">Sync Now</button>
+  <button class="sync-btn" onclick="fullResync()">Full Re-sync from Sheet</button>
 
   <div class="section-title">Data</div>
   <button class="export-btn" onclick="exportCSV()">⬇ Export All Data as CSV</button>
@@ -399,7 +453,10 @@ function saveHistory(h) { localStorage.setItem('gymlog_history', JSON.stringify(
 function getWeightStep() {
   return parseFloat(localStorage.getItem('gymlog_step') || '5');
 }
-function setWeightStep(v) { localStorage.setItem('gymlog_step', v); }
+function setWeightStep(v) {
+  localStorage.setItem('gymlog_step', v);
+  enqueueSync({ type: 'setMeta', key: 'weightStep', value: v });
+}
 
 // Track current input state per exercise
 let currentInputs = {};
@@ -550,6 +607,7 @@ function logSet(exId) {
   const history = loadHistory();
   history.push(entry);
   saveHistory(history);
+  enqueueSync({ type: 'pushSets', sets: [entry] });
   showToast(`✓ ${weight} lbs × ${reps}`);
   renderLogPage();
   // Re-open the card
@@ -561,6 +619,7 @@ function deleteSet(setId) {
   const set = history.find(s => s.id === setId);
   history = history.filter(s => s.id !== setId);
   saveHistory(history);
+  enqueueSync({ type: 'deleteSet', id: setId });
   renderLogPage();
   if (set) setTimeout(() => toggleCard(set.exerciseId), 10);
 }
@@ -657,6 +716,7 @@ function updateExercise(i, field, val) {
   const ex = loadExercises();
   ex[i][field] = val;
   saveExercises(ex);
+  enqueueSync({ type: 'pushExercises' });
 }
 
 function addExercise() {
@@ -670,6 +730,7 @@ function addExercise() {
     defaultReps: 10
   });
   saveExercises(ex);
+  enqueueSync({ type: 'pushExercises' });
   renderSettingsPage();
   // Scroll to bottom
   window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
@@ -680,6 +741,7 @@ function removeExercise(i) {
   const ex = loadExercises();
   ex.splice(i, 1);
   saveExercises(ex);
+  enqueueSync({ type: 'pushExercises' });
   renderSettingsPage();
 }
 
@@ -716,6 +778,7 @@ function clearAllData() {
   if (!confirm('Delete ALL workout history? This cannot be undone.')) return;
   if (!confirm('Are you really sure?')) return;
   saveHistory([]);
+  enqueueSync({ type: 'fullPush' });
   showToast('🗑 History cleared');
   renderHistoryPage();
   renderLogPage();
@@ -742,12 +805,327 @@ document.getElementById('weightStep').addEventListener('change', function() {
 });
 
 // ========================
+// SYNC ENGINE
+// ========================
+function getSyncConfig() {
+  return {
+    url: localStorage.getItem('gymlog_sync_url') || '',
+    token: localStorage.getItem('gymlog_sync_token') || ''
+  };
+}
+
+function saveSyncConfig() {
+  const url = document.getElementById('syncUrl').value.trim();
+  const token = document.getElementById('syncToken').value.trim();
+  localStorage.setItem('gymlog_sync_url', url);
+  localStorage.setItem('gymlog_sync_token', token);
+  updateSyncInfo();
+}
+
+function getSyncQueue() {
+  const d = localStorage.getItem('gymlog_sync_queue');
+  return d ? JSON.parse(d) : [];
+}
+
+function saveSyncQueue(queue) {
+  localStorage.setItem('gymlog_sync_queue', JSON.stringify(queue));
+}
+
+function enqueueSync(operation) {
+  const config = getSyncConfig();
+  if (!config.url || !config.token) return;
+  const queue = getSyncQueue();
+  queue.push(operation);
+  saveSyncQueue(queue);
+  debouncedSync();
+}
+
+let syncTimer = null;
+function debouncedSync() {
+  clearTimeout(syncTimer);
+  syncTimer = setTimeout(() => processSync(), 2000);
+}
+
+let syncing = false;
+async function processSync() {
+  const config = getSyncConfig();
+  if (!config.url || !config.token) return;
+  if (syncing) return;
+  if (!navigator.onLine) { updateSyncStatus('offline'); return; }
+
+  syncing = true;
+  updateSyncStatus('syncing');
+  try {
+    await pushQueue(config);
+    await pullRemote(config);
+    localStorage.setItem('gymlog_last_sync', new Date().toISOString());
+    updateSyncStatus('synced');
+    updateSyncInfo();
+  } catch (err) {
+    console.error('Sync error:', err);
+    updateSyncStatus('error');
+  } finally {
+    syncing = false;
+  }
+}
+
+async function pushQueue(config) {
+  const queue = getSyncQueue();
+  if (queue.length === 0) return;
+
+  // Deduplicate: collapse multiple pushExercises into one, batch pushSets
+  const batched = { sets: [], deletes: [], pushExercises: false, metas: {}, fullPush: false };
+
+  queue.forEach(op => {
+    switch (op.type) {
+      case 'pushSets':
+        batched.sets.push(...op.sets);
+        break;
+      case 'deleteSet':
+        batched.deletes.push(op.id);
+        break;
+      case 'pushExercises':
+        batched.pushExercises = true;
+        break;
+      case 'setMeta':
+        batched.metas[op.key] = op.value;
+        break;
+      case 'fullPush':
+        batched.fullPush = true;
+        break;
+    }
+  });
+
+  if (batched.fullPush) {
+    // Push everything
+    const history = loadHistory();
+    if (history.length > 0) {
+      await syncFetch(config, 'pushHistory', { sets: history });
+    }
+    await syncFetch(config, 'pushExercises', { exercises: loadExercises() });
+    const step = getWeightStep();
+    await syncFetch(config, 'setMeta', { key: 'weightStep', value: String(step) });
+  } else {
+    if (batched.sets.length > 0) {
+      await syncFetch(config, 'pushHistory', { sets: batched.sets });
+    }
+    for (const id of batched.deletes) {
+      await syncFetch(config, 'deleteHistory', { id });
+    }
+    if (batched.pushExercises) {
+      await syncFetch(config, 'pushExercises', { exercises: loadExercises() });
+    }
+    for (const [key, value] of Object.entries(batched.metas)) {
+      await syncFetch(config, 'setMeta', { key, value: String(value) });
+    }
+  }
+
+  saveSyncQueue([]);
+}
+
+async function pullRemote(config) {
+  const resp = await syncFetch(config, 'getAll');
+  if (!resp || resp.error) return;
+
+  const queue = getSyncQueue();
+  const hasPending = queue.length > 0;
+
+  // Merge history: add missing sets, remove deleted
+  const localHistory = loadHistory();
+  const localIds = new Set(localHistory.map(s => s.id));
+  const remoteHistory = (resp.history || []).filter(h => String(h.deleted) !== 'true');
+  const remoteDeletedIds = new Set(
+    (resp.history || []).filter(h => String(h.deleted) === 'true').map(h => h.id)
+  );
+
+  let changed = false;
+
+  // Add remote sets missing locally
+  remoteHistory.forEach(rh => {
+    if (!localIds.has(rh.id)) {
+      localHistory.push({
+        id: rh.id,
+        exerciseId: rh.exerciseId,
+        weight: Number(rh.weight),
+        reps: Number(rh.reps),
+        date: rh.date,
+        time: rh.time,
+        timestamp: rh.timestamp
+      });
+      changed = true;
+    }
+  });
+
+  // Remove locally any sets that are deleted remotely
+  const filtered = localHistory.filter(s => !remoteDeletedIds.has(s.id));
+  if (filtered.length !== localHistory.length) changed = true;
+
+  if (changed) {
+    saveHistory(filtered);
+    renderLogPage();
+    renderHistoryPage();
+  }
+
+  // Update exercises only if no pending local changes
+  if (!hasPending && resp.exercises && resp.exercises.length > 0) {
+    const remoteExercises = resp.exercises
+      .filter(e => String(e.deleted) !== 'true')
+      .map(e => ({
+        id: e.id,
+        name: e.name,
+        muscle: e.muscle,
+        videoUrl: e.videoUrl || '',
+        defaultWeight: Number(e.defaultWeight) || 0,
+        defaultReps: Number(e.defaultReps) || 0,
+        instructions: e.instructions || ''
+      }));
+    saveExercises(remoteExercises);
+    renderLogPage();
+    renderSettingsPage();
+  }
+
+  // Update meta
+  if (resp.meta && resp.meta.weightStep && !hasPending) {
+    localStorage.setItem('gymlog_step', resp.meta.weightStep);
+  }
+}
+
+async function syncFetch(config, action, body) {
+  const url = `${config.url}?action=${action}&token=${encodeURIComponent(config.token)}`;
+  const opts = body
+    ? { method: 'POST', body: JSON.stringify(body), headers: { 'Content-Type': 'text/plain' } }
+    : { method: 'GET' };
+
+  const resp = await fetch(url, { ...opts, redirect: 'follow' });
+  return resp.json();
+}
+
+function updateSyncStatus(state) {
+  const el = document.getElementById('syncStatus');
+  el.className = 'sync-status ' + state;
+  switch (state) {
+    case 'syncing': el.innerHTML = '<div class="sync-spinner"></div> Syncing'; break;
+    case 'synced': el.textContent = 'Synced'; break;
+    case 'offline': el.textContent = 'Offline'; break;
+    case 'error': el.textContent = 'Sync Error'; break;
+    default: el.className = 'sync-status disabled'; el.textContent = '';
+  }
+}
+
+function updateSyncInfo() {
+  const el = document.getElementById('syncInfo');
+  if (!el) return;
+  const config = getSyncConfig();
+  const queue = getSyncQueue();
+  const lastSync = localStorage.getItem('gymlog_last_sync');
+
+  if (!config.url || !config.token) {
+    el.textContent = 'Not configured — enter your Apps Script URL and token above.';
+    return;
+  }
+
+  let info = 'Connected';
+  if (lastSync) {
+    const d = new Date(lastSync);
+    info += ' · Last sync: ' + d.toLocaleString();
+  }
+  if (queue.length > 0) {
+    info += ' · Pending: ' + queue.length + ' operation' + (queue.length > 1 ? 's' : '');
+  }
+  el.textContent = info;
+}
+
+function loadSyncSettings() {
+  const config = getSyncConfig();
+  const urlInput = document.getElementById('syncUrl');
+  const tokenInput = document.getElementById('syncToken');
+  if (urlInput) urlInput.value = config.url;
+  if (tokenInput) tokenInput.value = config.token;
+  updateSyncInfo();
+}
+
+function manualSync() {
+  processSync();
+}
+
+async function fullResync() {
+  if (!confirm('Overwrite local data with everything from the Google Sheet?')) return;
+  const config = getSyncConfig();
+  if (!config.url || !config.token) { alert('Configure sync URL and token first.'); return; }
+
+  updateSyncStatus('syncing');
+  try {
+    saveSyncQueue([]);
+    const resp = await syncFetch(config, 'getAll');
+    if (resp.error) throw new Error(resp.error);
+
+    // Replace history
+    const remoteHistory = (resp.history || [])
+      .filter(h => String(h.deleted) !== 'true')
+      .map(h => ({
+        id: h.id, exerciseId: h.exerciseId,
+        weight: Number(h.weight), reps: Number(h.reps),
+        date: h.date, time: h.time, timestamp: h.timestamp
+      }));
+    saveHistory(remoteHistory);
+
+    // Replace exercises
+    if (resp.exercises && resp.exercises.length > 0) {
+      const remoteExercises = resp.exercises
+        .filter(e => String(e.deleted) !== 'true')
+        .map(e => ({
+          id: e.id, name: e.name, muscle: e.muscle,
+          videoUrl: e.videoUrl || '',
+          defaultWeight: Number(e.defaultWeight) || 0,
+          defaultReps: Number(e.defaultReps) || 0,
+          instructions: e.instructions || ''
+        }));
+      saveExercises(remoteExercises);
+    }
+
+    // Replace meta
+    if (resp.meta && resp.meta.weightStep) {
+      localStorage.setItem('gymlog_step', resp.meta.weightStep);
+    }
+
+    localStorage.setItem('gymlog_last_sync', new Date().toISOString());
+    currentInputs = {};
+    renderLogPage();
+    renderHistoryPage();
+    renderSettingsPage();
+    updateSyncStatus('synced');
+    showToast('Synced from Sheet');
+  } catch (err) {
+    console.error('Full resync error:', err);
+    updateSyncStatus('error');
+    alert('Sync failed: ' + err.message);
+  }
+}
+
+// Sync event listeners
+window.addEventListener('online', () => { processSync(); });
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden) processSync();
+});
+
+// ========================
 // INIT
 // ========================
 function init() {
   const now = new Date();
   document.getElementById('todayLabel').textContent = now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
   renderLogPage();
+  loadSyncSettings();
+
+  // Initial sync check
+  const config = getSyncConfig();
+  if (config.url && config.token) {
+    if (navigator.onLine) {
+      setTimeout(() => processSync(), 1000);
+    } else {
+      updateSyncStatus('offline');
+    }
+  }
 }
 
 init();
