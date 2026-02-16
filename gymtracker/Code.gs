@@ -1,9 +1,10 @@
 // ============================================================
 // GymLog Google Apps Script — Deploy as Web App
 // ============================================================
-// This script is locked to a single spreadsheet by ID.
 // The @OnlyCurrentDoc annotation restricts the OAuth scope so
 // Google only grants access to this sheet, not your entire Drive.
+// The script uses getActiveSpreadsheet() which only returns the
+// sheet this script is attached to — no other sheets are accessible.
 // ============================================================
 
 /**
@@ -11,7 +12,6 @@
  */
 
 const SECRET_TOKEN = 'CHANGE_ME_TO_A_RANDOM_STRING';
-const SPREADSHEET_ID = '1GGT7Jm57Vd3vZMTYIeCAAKHc7ueRsBTdZqx237bZdYo';
 
 function doGet(e) {
   return handleRequest(e);
@@ -57,7 +57,7 @@ function jsonResponse(data, code) {
 
 // ---- getAll ----
 function getAll() {
-  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
 
   const history = sheetToObjects(ss.getSheetByName('History'));
   const exercises = sheetToObjects(ss.getSheetByName('Exercises'));
@@ -75,7 +75,7 @@ function pushHistory(body) {
   const sets = body.sets || [];
   if (sets.length === 0) return { ok: true, added: 0 };
 
-  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
   const sheet = ss.getSheetByName('History');
   const existing = getColumnValues(sheet, 1); // column A = id
 
@@ -99,7 +99,7 @@ function deleteHistory(body) {
   const id = body.id;
   if (!id) return { ok: false, error: 'Missing id' };
 
-  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
   const sheet = ss.getSheetByName('History');
   const data = sheet.getDataRange().getValues();
 
@@ -118,7 +118,7 @@ function deleteHistory(body) {
 function pushExercises(body) {
   const exercises = body.exercises || [];
 
-  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
   const sheet = ss.getSheetByName('Exercises');
 
   // Clear all data rows (keep header)
@@ -145,7 +145,7 @@ function setMeta(body) {
   const value = body.value;
   if (!key) return { ok: false, error: 'Missing key' };
 
-  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
   const sheet = ss.getSheetByName('Meta');
   const data = sheet.getDataRange().getValues();
 
