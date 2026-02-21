@@ -196,23 +196,49 @@
   }
 
   /* === HISTORY PAGE === */
-  .history-day {
-    margin-bottom: 20px;
-  }
-  .history-date {
+  .hist-detail-date {
     font-family: 'Space Mono', monospace; font-size: 13px;
-    color: var(--accent); margin-bottom: 8px;
+    color: var(--accent); margin: 12px 0 10px;
     padding-bottom: 6px; border-bottom: 1px solid var(--border);
   }
-  .history-exercise {
-    padding: 8px 0;
+  .hist-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); margin-bottom: 8px;
+    padding: 12px 14px;
   }
-  .history-exercise-name {
-    font-weight: 600; font-size: 14px; margin-bottom: 4px;
+  .hist-card-name {
+    font-weight: 600; font-size: 14px; margin-bottom: 6px;
+    display: flex; align-items: center; gap: 8px;
   }
-  .history-set-line {
-    font-family: 'Space Mono', monospace; font-size: 12px;
-    color: var(--text2); padding: 2px 0 2px 12px;
+  .hist-card-name .muscle-tag {
+    font-size: 9px; color: var(--accent); background: rgba(200,255,0,0.1);
+    padding: 2px 6px; border-radius: 12px; font-weight: 700;
+    text-transform: uppercase;
+  }
+  .hist-set {
+    display: flex; align-items: center; gap: 8px;
+    padding: 4px 0; font-size: 13px; color: var(--text2);
+    font-family: 'Space Mono', monospace;
+  }
+  .hist-set .check { color: var(--green); }
+  .hist-set .time { margin-left: auto; font-size: 11px; opacity: 0.6; }
+  .hist-summary {
+    display: flex; gap: 12px; margin-top: 10px; padding-top: 8px;
+    border-top: 1px solid var(--border);
+  }
+  .hist-stat {
+    font-size: 11px; color: var(--text2); font-family: 'Space Mono', monospace;
+  }
+  .hist-stat b { color: var(--text); font-size: 16px; display: block; margin-bottom: 2px; }
+  .cal-cell.has-workout .cal-day { color: var(--green); }
+  .cal-cell.has-workout::after {
+    content: ''; width: 4px; height: 4px; border-radius: 50%;
+    background: var(--green); position: absolute; bottom: 4px;
+  }
+  .cal-cell { position: relative; }
+  .cal-cell.active-day { border-color: var(--green); background: var(--surface2); }
+  .hist-empty {
+    text-align: center; padding: 20px; color: var(--text2); font-size: 13px;
   }
 
   /* === SETTINGS PAGE === */
@@ -462,7 +488,8 @@
 
 <!-- HISTORY PAGE -->
 <div class="page" id="page-history">
-  <div id="historyList"></div>
+  <div id="historyCalendar"></div>
+  <div id="historyDetail"></div>
   <div class="empty-state" id="emptyHistory" style="display:none">
     <div class="emoji">📊</div>
     <p>No workout history yet.<br>Start logging to see your progress.</p>
@@ -589,6 +616,11 @@ let editingTplId = null;
 let calendarYear = new Date().getFullYear();
 let calendarMonth = new Date().getMonth();
 let selectedDays = new Set();
+
+// History calendar state
+let histYear = new Date().getFullYear();
+let histMonth = new Date().getMonth();
+let histSelectedDate = new Date().toLocaleDateString('en-CA');
 
 // ========================
 // RENDERING
@@ -776,55 +808,141 @@ function deleteSet(setId) {
 // ========================
 function renderHistoryPage() {
   const history = loadHistory();
-  const exercises = loadExercises();
-  const container = document.getElementById('historyList');
   const empty = document.getElementById('emptyHistory');
 
   if (history.length === 0) {
-    container.innerHTML = '';
+    document.getElementById('historyCalendar').innerHTML = '';
+    document.getElementById('historyDetail').innerHTML = '';
     empty.style.display = 'block';
     return;
   }
   empty.style.display = 'none';
 
-  // Group by date (newest first)
-  const grouped = {};
-  history.forEach(h => {
-    if (!grouped[h.date]) grouped[h.date] = [];
-    grouped[h.date].push(h);
+  renderHistoryCalendar(history);
+  renderHistoryDetail(history);
+}
+
+function renderHistoryCalendar(history) {
+  const container = document.getElementById('historyCalendar');
+  const year = histYear;
+  const month = histMonth;
+  const today = new Date().toLocaleDateString('en-CA');
+  const firstDay = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const monthLabel = new Date(year, month).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+
+  // Build set of dates that have workouts
+  const workoutDates = new Set();
+  history.forEach(function(h) { workoutDates.add(h.date); });
+
+  let html = '\
+    <div class="cal-nav">\
+      <button onclick="navHistMonth(-1)">←</button>\
+      <span>' + monthLabel + '</span>\
+      <button onclick="navHistMonth(1)">→</button>\
+    </div>\
+    <div class="cal-grid">\
+      <div class="cal-hdr">Su</div><div class="cal-hdr">Mo</div><div class="cal-hdr">Tu</div>\
+      <div class="cal-hdr">We</div><div class="cal-hdr">Th</div><div class="cal-hdr">Fr</div>\
+      <div class="cal-hdr">Sa</div>';
+
+  for (var i = 0; i < firstDay; i++) {
+    html += '<div class="cal-cell empty"></div>';
+  }
+
+  for (var d = 1; d <= daysInMonth; d++) {
+    var dateStr = year + '-' + String(month + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0');
+    var hasWorkout = workoutDates.has(dateStr);
+    var isToday = dateStr === today;
+    var isActive = dateStr === histSelectedDate;
+
+    var cls = 'cal-cell';
+    if (hasWorkout) cls += ' has-workout';
+    if (isToday) cls += ' today';
+    if (isActive) cls += ' active-day';
+
+    html += '<div class="' + cls + '" onclick="selectHistDay(\'' + dateStr + '\')">' +
+      '<span class="cal-day">' + d + '</span>' +
+      '</div>';
+  }
+
+  html += '</div>';
+  container.innerHTML = html;
+}
+
+function renderHistoryDetail(history) {
+  const container = document.getElementById('historyDetail');
+  const exercises = loadExercises();
+
+  if (!histSelectedDate) {
+    container.innerHTML = '<div class="hist-empty">Tap a day to view workout</div>';
+    return;
+  }
+
+  const daySets = history.filter(function(h) { return h.date === histSelectedDate; });
+
+  if (daySets.length === 0) {
+    var d = new Date(histSelectedDate + 'T12:00:00');
+    var label = d.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+    container.innerHTML = '<div class="hist-detail-date">' + label + '</div>' +
+      '<div class="hist-empty">No workout on this day</div>';
+    return;
+  }
+
+  // Group by exercise
+  var byEx = {};
+  daySets.forEach(function(s) {
+    if (!byEx[s.exerciseId]) byEx[s.exerciseId] = [];
+    byEx[s.exerciseId].push(s);
   });
-  const dates = Object.keys(grouped).sort().reverse();
 
-  container.innerHTML = dates.map(date => {
-    const sets = grouped[date];
-    // Group by exercise
-    const byEx = {};
-    sets.forEach(s => {
-      if (!byEx[s.exerciseId]) byEx[s.exerciseId] = [];
-      byEx[s.exerciseId].push(s);
-    });
+  var d = new Date(histSelectedDate + 'T12:00:00');
+  var label = d.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+  var totalSets = daySets.length;
+  var totalExercises = Object.keys(byEx).length;
 
-    const d = new Date(date + 'T12:00:00');
-    const label = d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+  var html = '<div class="hist-detail-date">' + label + '</div>';
 
-    return `
-      <div class="history-day">
-        <div class="history-date">${label}</div>
-        ${Object.keys(byEx).map(exId => {
-          const ex = exercises.find(e => e.id === exId);
-          const name = ex ? ex.name : 'Unknown';
-          return `
-            <div class="history-exercise">
-              <div class="history-exercise-name">${name}</div>
-              ${byEx[exId].map((s, i) => `
-                <div class="history-set-line">Set ${i+1}: ${s.weight} lbs × ${s.reps} reps  @ ${s.time}</div>
-              `).join('')}
-            </div>
-          `;
-        }).join('')}
-      </div>
-    `;
+  html += '<div class="hist-summary">' +
+    '<div class="hist-stat"><b>' + totalExercises + '</b>exercises</div>' +
+    '<div class="hist-stat"><b>' + totalSets + '</b>total sets</div>' +
+    '</div>';
+
+  html += Object.keys(byEx).map(function(exId) {
+    var ex = exercises.find(function(e) { return e.id === exId; });
+    var name = ex ? ex.name : 'Unknown';
+    var muscle = ex ? ex.muscle : '';
+
+    return '<div class="hist-card">' +
+      '<div class="hist-card-name">' + escHtml(name) +
+        (muscle ? ' <span class="muscle-tag">' + escHtml(muscle) + '</span>' : '') +
+      '</div>' +
+      byEx[exId].map(function(s, i) {
+        return '<div class="hist-set">' +
+          '<span class="check">✓</span> ' +
+          'Set ' + (i + 1) + ': ' + s.weight + ' lbs × ' + s.reps + ' reps' +
+          '<span class="time">' + s.time + '</span>' +
+        '</div>';
+      }).join('') +
+    '</div>';
   }).join('');
+
+  container.innerHTML = html;
+}
+
+function navHistMonth(dir) {
+  histMonth += dir;
+  if (histMonth < 0) { histMonth = 11; histYear--; }
+  if (histMonth > 11) { histMonth = 0; histYear++; }
+  histSelectedDate = null;
+  renderHistoryPage();
+}
+
+function selectHistDay(dateStr) {
+  histSelectedDate = dateStr;
+  var history = loadHistory();
+  renderHistoryCalendar(history);
+  renderHistoryDetail(history);
 }
 
 // ========================
