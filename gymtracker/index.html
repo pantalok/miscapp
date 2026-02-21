@@ -85,6 +85,16 @@
     overflow: hidden; transition: border-color 0.2s;
   }
   .exercise-card.expanded { border-color: var(--accent); }
+  .exercise-card.done { border-left: 3px solid var(--green); }
+  .exercise-card.done .exercise-name { opacity: 0.6; }
+  .done-badge {
+    font-size: 11px; color: var(--green); font-family: 'Space Mono', monospace;
+    display: flex; align-items: center; gap: 3px;
+  }
+  .pending-badge {
+    font-size: 11px; color: var(--text2); font-family: 'Space Mono', monospace;
+    opacity: 0.5;
+  }
   .exercise-header {
     padding: 14px 16px; display: flex; justify-content: space-between;
     align-items: center; cursor: pointer; user-select: none;
@@ -228,8 +238,18 @@
   }
   .exercise-edit-card select { -webkit-appearance: none; }
   .field-label { font-size: 11px; color: var(--text2); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+  .exercise-edit-actions {
+    position: absolute; top: 10px; right: 12px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .move-btn {
+    background: var(--surface2); border: 1px solid var(--border); color: var(--text2);
+    width: 28px; height: 28px; border-radius: 50%; cursor: pointer;
+    font-size: 14px; display: flex; align-items: center; justify-content: center;
+  }
+  .move-btn:active { background: var(--border); color: var(--accent); }
+  .move-btn:disabled { opacity: 0.2; pointer-events: none; }
   .remove-exercise-btn {
-    position: absolute; top: 12px; right: 12px;
     background: rgba(255,68,68,0.15); border: none; color: var(--red);
     width: 28px; height: 28px; border-radius: 50%; cursor: pointer;
     font-size: 16px; display: flex; align-items: center; justify-content: center;
@@ -298,6 +318,8 @@
     .tab-bar { background: #fafafa; }
     .adj-btn { color: #1a8f00; }
     .header h1 { color: #1a8f00; }
+    .exercise-card.done { border-left-color: #2d8f4e; }
+    .done-badge { color: #2d8f4e; }
   }
 </style>
 </head>
@@ -372,22 +394,21 @@
 // DATA LAYER
 // ========================
 const DEFAULT_EXERCISES = [
+  { id: 'ex11', name: 'HIT Warmup', muscle: 'Full Body', videoUrl: 'https://photos.app.goo.gl/hHtiD851Vs8HHxKR8', defaultWeight: 0, defaultReps: 1, instructions: '' },
   { id: 'ex1', name: 'Single Arm Farmer Carry', muscle: 'Core', videoUrl: 'https://youtube.com/shorts/fdRD8FJ0QWs?si=1b-amYBy6uFStwyf', defaultWeight: 20, defaultReps: 2, instructions: 'Walk with 1 dumbbell in your hand with a straight arm, dumbbell by your side. Core should be activated and shoulders back, chest up. Walk with perfect posture for 30 seconds. Alternate dumbbell to the other side and walk 30 more seconds.' },
   { id: 'ex2', name: 'Cable High Row', muscle: 'Back', videoUrl: 'https://youtube.com/shorts/ifjtUEBhIxY?si=RnK_TPSBQMqpO80Y', defaultWeight: 20, defaultReps: 10, instructions: 'Set cable at top height, use single handle attachment. Pull the handle down until the elbow reaches the side body. Perform 10 on each side, 2 sets.' },
   { id: 'ex3', name: 'Cable Tricep Press', muscle: 'Triceps', videoUrl: 'https://youtube.com/shorts/xguGXQAvbKk?si=4ZtU__ZewO7ytf9l', defaultWeight: 25, defaultReps: 10, instructions: 'Set cable at top height, use bar attachment. Standing with an activated core, using an overgrip on the bar with both hands, keep the upper arm in contact with the side body and move from the elbows in a downward press. 10 reps, 2 sets.' },
   { id: 'ex4', name: 'Shoulder Internal Rotation', muscle: 'Shoulders', videoUrl: 'https://photos.app.goo.gl/6hGmc2mQZWDUU74W9', defaultWeight: 0, defaultReps: 10, instructions: 'Set cable at mid height. Use single handle attachment. With one hand on the handle, bend the elbow 90 degrees and internally rotate at the shoulder joint bringing your hand to the midline. 10 times right and left side, 2 sets.' },
   { id: 'ex5', name: 'Cable Deadlift', muscle: 'Posterior Chain', videoUrl: 'https://photos.app.goo.gl/vJzhUkBKckedXYjz7', defaultWeight: 25, defaultReps: 10, instructions: 'Set cable to lowest height. Use bar attachment. With feet shoulder width apart, hinge at hips while pushing the hips back and hold the bar. Using the back of your legs (hamstrings & glutes) pull the bar to the hips as you stand up. 10 reps, 2 sets.' },
   { id: 'ex6', name: 'Reverse Fly Singles', muscle: 'Upper Back', videoUrl: 'https://photos.app.goo.gl/bMGX6gkFzeB75ntc8', defaultWeight: 5, defaultReps: 10, instructions: 'Stand with feet slightly separated for stability, hinge at hips until the chest is over the knees. Using one arm at a time, lift arm laterally using the muscles in the shoulder blade area (rhomboids, mid-trapezius). 10 on each side, 2 sets.' },
-  { id: 'ex7', name: 'Back Extension', muscle: 'Lower Back', videoUrl: 'https://photos.app.goo.gl/QCa9eubSix7hYcnw9', defaultWeight: 0, defaultReps: 10, instructions: 'Using the Roman Chair, adjust the pad to sit right below your hip bone. Secure your feet and lower your head towards the floor. Using the muscles in your lower back and glutes, lift yourself to straighten the back. 10 reps, 2 sets.' },
   { id: 'ex8', name: 'Bicep Kickback', muscle: 'Biceps', videoUrl: 'https://photos.app.goo.gl/GoDEhU872mFrzm167', defaultWeight: 10, defaultReps: 10, instructions: '' },
   { id: 'ex9', name: 'External Rotation', muscle: 'Shoulders', videoUrl: 'https://photos.app.goo.gl/ce73shrch4FLkeCv9', defaultWeight: 5, defaultReps: 10, instructions: '' },
-  { id: 'ex10', name: 'Cool Down Stretch', muscle: 'Flexibility', videoUrl: 'https://photos.app.goo.gl/ksutEWxSLdhcL9eCA', defaultWeight: 0, defaultReps: 1, instructions: '' },
-  { id: 'ex11', name: 'HIT Warmup', muscle: 'Full Body', videoUrl: 'https://photos.app.goo.gl/hHtiD851Vs8HHxKR8', defaultWeight: 0, defaultReps: 1, instructions: '' },
   { id: 'ex12', name: 'Tricep Press 2', muscle: 'Triceps', videoUrl: 'https://photos.app.goo.gl/X9Xh6GZpiTZP7Asf6', defaultWeight: 25, defaultReps: 10, instructions: '' },
-  { id: 'ex13', name: 'Core and Back Exercise', muscle: 'Core', videoUrl: 'https://photos.app.goo.gl/QxQicwzSfwccRyDr5', defaultWeight: 0, defaultReps: 10, instructions: '' },
   { id: 'ex14', name: 'Cable Core Press', muscle: 'Core', videoUrl: 'https://photos.app.goo.gl/QxQicwzSfwccRyDr5', defaultWeight: 0, defaultReps: 10, instructions: '' },
   { id: 'ex15', name: 'Suitcase Deadlift', muscle: 'Posterior Chain', videoUrl: 'https://photos.app.goo.gl/kCByxbpWKoJeUMXS6', defaultWeight: 20, defaultReps: 10, instructions: '' },
-  { id: 'ex16', name: 'TRX Core and Back', muscle: 'Core', videoUrl: 'https://photos.app.goo.gl/s5Ta65Bz2CnME7Zj8', defaultWeight: 0, defaultReps: 10, instructions: '' },
+  { id: 'ex18', name: 'TRX Body Weight', muscle: 'Core', videoUrl: 'https://photos.app.goo.gl/7C2PvV1t9S1fUY1D8', defaultWeight: 0, defaultReps: 10, instructions: 'Using the TRX cable attached to the wall, position yourself in a reverse plank. Push your body up and down while keeping the core tight throughout the movement.' },
+  { id: 'ex7', name: 'Back Extension', muscle: 'Lower Back', videoUrl: 'https://photos.app.goo.gl/QCa9eubSix7hYcnw9', defaultWeight: 0, defaultReps: 10, instructions: 'Using the Roman Chair, adjust the pad to sit right below your hip bone. Secure your feet and lower your head towards the floor. Using the muscles in your lower back and glutes, lift yourself to straighten the back. 10 reps, 2 sets.' },
+  { id: 'ex10', name: 'Cool Down Stretch', muscle: 'Flexibility', videoUrl: 'https://photos.app.goo.gl/ksutEWxSLdhcL9eCA', defaultWeight: 0, defaultReps: 1, instructions: '' },
   { id: 'ex17', name: 'CoolDown', muscle: 'Flexibility', videoUrl: 'https://photos.app.goo.gl/X5qXPyKgjcDyhnMd8', defaultWeight: 0, defaultReps: 1, instructions: '' },
 ];
 
@@ -447,8 +468,10 @@ function renderLogPage() {
     };
     currentInputs[ex.id] = ci;
 
+    const isDone = exSets.length > 0;
+
     return `
-      <div class="exercise-card" id="card-${ex.id}">
+      <div class="exercise-card${isDone ? ' done' : ''}" id="card-${ex.id}">
         <div class="exercise-header" onclick="toggleCard('${ex.id}')">
           <div class="exercise-name">
             ${ex.name}
@@ -456,7 +479,10 @@ function renderLogPage() {
           </div>
           <div style="display:flex;align-items:center;gap:8px">
             ${ex.videoUrl ? `<a href="${ex.videoUrl}" target="_blank" class="video-link" onclick="event.stopPropagation()">▶ Video</a>` : ''}
-            <span style="color:var(--text2);font-size:13px;font-family:'Space Mono',monospace">${exSets.length}s</span>
+            ${isDone
+              ? `<span class="done-badge">✓ ${exSets.length}s</span>`
+              : `<span class="pending-badge">—</span>`
+            }
           </div>
         </div>
         <div class="exercise-body" id="body-${ex.id}" style="display:none">
@@ -637,7 +663,11 @@ function renderSettingsPage() {
 
   document.getElementById('exerciseEditor').innerHTML = exercises.map((ex, i) => `
     <div class="exercise-edit-card">
-      <button class="remove-exercise-btn" onclick="removeExercise(${i})">×</button>
+      <div class="exercise-edit-actions">
+        <button class="move-btn" onclick="moveExercise(${i},-1)" ${i === 0 ? 'disabled' : ''}>↑</button>
+        <button class="move-btn" onclick="moveExercise(${i},1)" ${i === exercises.length - 1 ? 'disabled' : ''}>↓</button>
+        <button class="remove-exercise-btn" onclick="removeExercise(${i})">×</button>
+      </div>
       <div class="field-label">Exercise Name</div>
       <input value="${escHtml(ex.name)}" onchange="updateExercise(${i},'name',this.value)" placeholder="e.g. Bench Press">
       <div class="field-label" style="margin-top:10px">Muscle Group</div>
@@ -680,6 +710,15 @@ function addExercise() {
   renderSettingsPage();
   // Scroll to bottom
   window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+}
+
+function moveExercise(i, dir) {
+  const ex = loadExercises();
+  const j = i + dir;
+  if (j < 0 || j >= ex.length) return;
+  [ex[i], ex[j]] = [ex[j], ex[i]];
+  saveExercises(ex);
+  renderSettingsPage();
 }
 
 function removeExercise(i) {
