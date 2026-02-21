@@ -306,6 +306,126 @@
   }
   .toast.show { transform: translateX(-50%) translateY(0); }
 
+  /* === PLAN PAGE === */
+  .tpl-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); margin-bottom: 10px; overflow: hidden;
+  }
+  .tpl-card.editing { border-color: var(--accent); }
+  .tpl-header {
+    padding: 14px 16px; display: flex; justify-content: space-between;
+    align-items: center; cursor: pointer; user-select: none;
+  }
+  .tpl-name {
+    font-weight: 600; font-size: 15px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .tpl-count {
+    font-size: 11px; color: var(--text2); font-family: 'Space Mono', monospace;
+  }
+  .tpl-body { padding: 0 16px 16px; }
+  .tpl-name-input {
+    width: 100%; padding: 10px 12px; margin-bottom: 10px;
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 8px; color: var(--text); font-size: 14px;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .tpl-name-input:focus { outline: none; border-color: var(--accent); }
+  .tpl-exercise-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px; margin-bottom: 4px;
+    background: var(--surface2); border-radius: 8px;
+    cursor: pointer; user-select: none;
+    border-left: 3px solid transparent;
+  }
+  .tpl-exercise-row.included { border-left-color: var(--green); }
+  .tpl-exercise-row .ex-name { flex: 1; font-size: 14px; }
+  .tpl-exercise-row .ex-muscle {
+    font-size: 10px; color: var(--accent); background: rgba(200,255,0,0.1);
+    padding: 2px 6px; border-radius: 12px; font-weight: 700;
+    text-transform: uppercase;
+  }
+  .tpl-exercise-row .ex-toggle {
+    font-size: 16px; color: var(--green); width: 20px; text-align: center;
+  }
+  .tpl-delete-btn {
+    background: rgba(255,68,68,0.15); border: none; color: var(--red);
+    padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 600;
+    cursor: pointer; font-family: 'DM Sans', sans-serif; margin-top: 10px;
+  }
+  .cal-nav {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 0; margin-bottom: 8px;
+  }
+  .cal-nav span {
+    font-family: 'Space Mono', monospace; font-size: 14px; font-weight: 700;
+  }
+  .cal-nav button {
+    background: var(--surface2); border: 1px solid var(--border); color: var(--text);
+    width: 36px; height: 36px; border-radius: 50%; cursor: pointer;
+    font-size: 18px; display: flex; align-items: center; justify-content: center;
+  }
+  .cal-nav button:active { background: var(--border); }
+  .cal-grid {
+    display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px;
+    margin-bottom: 12px;
+  }
+  .cal-hdr {
+    text-align: center; font-size: 10px; color: var(--text2);
+    font-weight: 700; padding: 4px 0; text-transform: uppercase;
+    font-family: 'Space Mono', monospace;
+  }
+  .cal-cell {
+    aspect-ratio: 1; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 2px;
+    background: var(--surface); border: 2px solid transparent;
+    border-radius: 8px; cursor: pointer;
+  }
+  .cal-cell.empty { background: transparent; cursor: default; }
+  .cal-cell.selected { border-color: var(--accent); }
+  .cal-cell.today .cal-day { color: var(--accent); }
+  .cal-day { font-size: 13px; font-weight: 600; font-family: 'Space Mono', monospace; }
+  .cal-dot {
+    font-size: 8px; font-weight: 700; color: #000;
+    width: 14px; height: 14px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    text-transform: uppercase;
+  }
+  .cal-actions {
+    display: flex; align-items: center; gap: 8px;
+    padding: 12px; background: var(--surface);
+    border-radius: var(--radius); border: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+  .cal-actions span {
+    font-size: 13px; font-weight: 600; color: var(--accent);
+    font-family: 'Space Mono', monospace;
+  }
+  .cal-actions select {
+    flex: 1; padding: 8px 10px; background: var(--bg);
+    border: 1px solid var(--border); border-radius: 8px;
+    color: var(--text); font-size: 13px;
+    font-family: 'DM Sans', sans-serif; -webkit-appearance: none;
+  }
+  .cal-actions button {
+    padding: 8px 14px; border-radius: 8px;
+    font-size: 13px; font-weight: 700; cursor: pointer;
+    font-family: 'DM Sans', sans-serif; border: none;
+  }
+  .cal-actions button:active { opacity: 0.7; }
+  .cal-assign-btn { background: var(--accent); color: #000; }
+  .cal-clear-btn { background: rgba(255,68,68,0.15); color: var(--red); }
+  .today-template {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 6px 12px; margin-bottom: 12px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 20px; font-size: 12px; font-weight: 600;
+    cursor: pointer; font-family: 'DM Sans', sans-serif;
+  }
+  .today-template .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+  }
+
   /* scrollbar */
   ::-webkit-scrollbar { display: none; }
 
@@ -320,6 +440,7 @@
     .header h1 { color: #1a8f00; }
     .exercise-card.done { border-left-color: #2d8f4e; }
     .done-badge { color: #2d8f4e; }
+    .cal-dot { color: #fff; }
   }
 </style>
 </head>
@@ -370,6 +491,17 @@
   <div style="height: 30px"></div>
 </div>
 
+<!-- PLAN PAGE -->
+<div class="page" id="page-plan">
+  <div class="section-title">My Templates</div>
+  <div id="templateList"></div>
+  <button class="add-btn" onclick="addTemplate()">+ New Template</button>
+
+  <div class="section-title">Schedule</div>
+  <div id="calendarView"></div>
+  <div style="height: 30px"></div>
+</div>
+
 <!-- TAB BAR -->
 <div class="tab-bar">
   <button class="tab active" data-page="page-log">
@@ -379,6 +511,10 @@
   <button class="tab" data-page="page-history">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 16l4-6 4 4 5-8"/></svg>
     History
+  </button>
+  <button class="tab" data-page="page-plan">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+    Plan
   </button>
   <button class="tab" data-page="page-settings">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.32 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
@@ -432,6 +568,28 @@ function setWeightStep(v) { localStorage.setItem('gymlog_step', v); }
 // Track current input state per exercise
 let currentInputs = {};
 
+// Templates & Schedule
+const TPL_COLORS = ['#c8ff00', '#4488ff', '#ff4444', '#44ff88', '#ff88ff', '#ff8844'];
+function loadTemplates() {
+  const d = localStorage.getItem('gymlog_templates');
+  return d ? JSON.parse(d) : [];
+}
+function saveTemplates(t) { localStorage.setItem('gymlog_templates', JSON.stringify(t)); }
+function loadSchedule() {
+  const d = localStorage.getItem('gymlog_schedule');
+  return d ? JSON.parse(d) : {};
+}
+function saveSchedule(s) { localStorage.setItem('gymlog_schedule', JSON.stringify(s)); }
+function getTplColor(tplId) {
+  const idx = loadTemplates().findIndex(t => t.id === tplId);
+  return TPL_COLORS[Math.max(0, idx) % TPL_COLORS.length];
+}
+
+let editingTplId = null;
+let calendarYear = new Date().getFullYear();
+let calendarMonth = new Date().getMonth();
+let selectedDays = new Set();
+
 // ========================
 // RENDERING
 // ========================
@@ -443,7 +601,7 @@ function showToast(msg) {
 }
 
 function renderLogPage() {
-  const exercises = loadExercises();
+  let exercises = loadExercises();
   const history = loadHistory();
   const container = document.getElementById('exerciseList');
   const empty = document.getElementById('emptyLog');
@@ -459,7 +617,22 @@ function renderLogPage() {
   const today = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD
   const todaySets = history.filter(h => h.date === today);
 
-  container.innerHTML = exercises.map(ex => {
+  // Filter by today's template if assigned
+  const schedule = loadSchedule();
+  const tplId = schedule[today];
+  let templateLabel = '';
+  if (tplId) {
+    const tpl = loadTemplates().find(t => t.id === tplId);
+    if (tpl) {
+      exercises = exercises.filter(ex => tpl.exerciseIds.includes(ex.id));
+      templateLabel = `<div class="today-template" onclick="switchToTab('page-plan')">
+        <span class="dot" style="background:${getTplColor(tplId)}"></span>
+        ${escHtml(tpl.name)}
+      </div>`;
+    }
+  }
+
+  container.innerHTML = templateLabel + exercises.map(ex => {
     const exSets = todaySets.filter(s => s.exerciseId === ex.id);
     const lastSet = getLastSetForExercise(ex.id);
     const ci = currentInputs[ex.id] || {
@@ -768,19 +941,236 @@ function clearAllData() {
 }
 
 // ========================
+// PLAN PAGE
+// ========================
+function renderPlanPage() {
+  renderTemplateList();
+  renderCalendar();
+}
+
+function renderTemplateList() {
+  const templates = loadTemplates();
+  const exercises = loadExercises();
+  const container = document.getElementById('templateList');
+
+  if (templates.length === 0) {
+    container.innerHTML = '<div style="color:var(--text2);font-size:13px;padding:10px 0">No templates yet. Create one to get started.</div>';
+    return;
+  }
+
+  container.innerHTML = templates.map(tpl => {
+    const isEditing = editingTplId === tpl.id;
+    const color = getTplColor(tpl.id);
+
+    return `
+      <div class="tpl-card${isEditing ? ' editing' : ''}">
+        <div class="tpl-header" onclick="toggleTemplate('${tpl.id}')">
+          <div class="tpl-name">
+            <span class="cal-dot" style="background:${color}">${tpl.name[0]}</span>
+            ${escHtml(tpl.name)}
+          </div>
+          <span class="tpl-count">${tpl.exerciseIds.length} exercises</span>
+        </div>
+        ${isEditing ? `
+          <div class="tpl-body">
+            <input class="tpl-name-input" value="${escHtml(tpl.name)}"
+              onchange="renameTemplate('${tpl.id}', this.value)" placeholder="Template name">
+            ${exercises.map(ex => {
+              const included = tpl.exerciseIds.includes(ex.id);
+              return `
+                <div class="tpl-exercise-row${included ? ' included' : ''}"
+                  onclick="toggleTplExercise('${tpl.id}','${ex.id}')">
+                  <span class="ex-toggle">${included ? '✓' : ''}</span>
+                  <span class="ex-name">${escHtml(ex.name)}</span>
+                  <span class="ex-muscle">${escHtml(ex.muscle)}</span>
+                </div>
+              `;
+            }).join('')}
+            <button class="tpl-delete-btn" onclick="deleteTemplate('${tpl.id}')">Delete Template</button>
+          </div>
+        ` : ''}
+      </div>
+    `;
+  }).join('');
+}
+
+function toggleTemplate(tplId) {
+  editingTplId = editingTplId === tplId ? null : tplId;
+  renderTemplateList();
+}
+
+function addTemplate() {
+  const templates = loadTemplates();
+  const newTpl = {
+    id: 'tpl_' + Date.now(),
+    name: 'Template ' + (templates.length + 1),
+    exerciseIds: []
+  };
+  templates.push(newTpl);
+  saveTemplates(templates);
+  editingTplId = newTpl.id;
+  renderPlanPage();
+}
+
+function renameTemplate(tplId, name) {
+  const templates = loadTemplates();
+  const tpl = templates.find(t => t.id === tplId);
+  if (tpl) {
+    tpl.name = name;
+    saveTemplates(templates);
+  }
+}
+
+function toggleTplExercise(tplId, exId) {
+  const templates = loadTemplates();
+  const tpl = templates.find(t => t.id === tplId);
+  if (!tpl) return;
+  const idx = tpl.exerciseIds.indexOf(exId);
+  if (idx >= 0) {
+    tpl.exerciseIds.splice(idx, 1);
+  } else {
+    tpl.exerciseIds.push(exId);
+  }
+  saveTemplates(templates);
+  renderTemplateList();
+}
+
+function deleteTemplate(tplId) {
+  if (!confirm('Delete this template?')) return;
+  let templates = loadTemplates();
+  templates = templates.filter(t => t.id !== tplId);
+  saveTemplates(templates);
+  const schedule = loadSchedule();
+  Object.keys(schedule).forEach(date => {
+    if (schedule[date] === tplId) delete schedule[date];
+  });
+  saveSchedule(schedule);
+  editingTplId = null;
+  renderPlanPage();
+}
+
+function renderCalendar() {
+  const container = document.getElementById('calendarView');
+  const schedule = loadSchedule();
+  const templates = loadTemplates();
+  const today = new Date().toLocaleDateString('en-CA');
+  const year = calendarYear;
+  const month = calendarMonth;
+  const firstDay = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const monthLabel = new Date(year, month).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+
+  let html = `
+    <div class="cal-nav">
+      <button onclick="navMonth(-1)">←</button>
+      <span>${monthLabel}</span>
+      <button onclick="navMonth(1)">→</button>
+    </div>
+    <div class="cal-grid">
+      <div class="cal-hdr">Su</div><div class="cal-hdr">Mo</div><div class="cal-hdr">Tu</div>
+      <div class="cal-hdr">We</div><div class="cal-hdr">Th</div><div class="cal-hdr">Fr</div>
+      <div class="cal-hdr">Sa</div>
+  `;
+
+  for (let i = 0; i < firstDay; i++) {
+    html += '<div class="cal-cell empty"></div>';
+  }
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dateStr = year + '-' + String(month + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0');
+    const tplId = schedule[dateStr];
+    const tpl = tplId ? templates.find(t => t.id === tplId) : null;
+    const isSelected = selectedDays.has(dateStr);
+    const isToday = dateStr === today;
+
+    let cls = 'cal-cell';
+    if (isSelected) cls += ' selected';
+    if (isToday) cls += ' today';
+
+    html += `
+      <div class="${cls}" onclick="toggleDay('${dateStr}')">
+        <span class="cal-day">${d}</span>
+        ${tpl ? '<span class="cal-dot" style="background:' + getTplColor(tplId) + '">' + tpl.name[0] + '</span>' : ''}
+      </div>
+    `;
+  }
+
+  html += '</div>';
+
+  if (selectedDays.size > 0) {
+    html += `
+      <div class="cal-actions">
+        <span>${selectedDays.size} day${selectedDays.size > 1 ? 's' : ''}</span>
+        <select id="assignTpl">
+          <option value="">Pick template</option>
+          ${templates.map(t => '<option value="' + t.id + '">' + escHtml(t.name) + '</option>').join('')}
+        </select>
+        <button class="cal-assign-btn" onclick="assignTemplate()">Set</button>
+        <button class="cal-clear-btn" onclick="clearScheduleForSelected()">Clear</button>
+      </div>
+    `;
+  }
+
+  container.innerHTML = html;
+}
+
+function navMonth(dir) {
+  calendarMonth += dir;
+  if (calendarMonth < 0) { calendarMonth = 11; calendarYear--; }
+  if (calendarMonth > 11) { calendarMonth = 0; calendarYear++; }
+  selectedDays.clear();
+  renderCalendar();
+}
+
+function toggleDay(dateStr) {
+  if (selectedDays.has(dateStr)) {
+    selectedDays.delete(dateStr);
+  } else {
+    selectedDays.add(dateStr);
+  }
+  renderCalendar();
+}
+
+function assignTemplate() {
+  const select = document.getElementById('assignTpl');
+  const tplId = select.value;
+  if (!tplId) { showToast('Pick a template first'); return; }
+  const schedule = loadSchedule();
+  selectedDays.forEach(function(date) { schedule[date] = tplId; });
+  saveSchedule(schedule);
+  const tpl = loadTemplates().find(t => t.id === tplId);
+  showToast('✓ ' + (tpl ? tpl.name : 'Template') + ' → ' + selectedDays.size + ' days');
+  selectedDays.clear();
+  renderCalendar();
+}
+
+function clearScheduleForSelected() {
+  const schedule = loadSchedule();
+  selectedDays.forEach(function(date) { delete schedule[date]; });
+  saveSchedule(schedule);
+  showToast('✓ Schedule cleared');
+  selectedDays.clear();
+  renderCalendar();
+}
+
+function switchToTab(pageId) {
+  document.querySelectorAll('.tab').forEach(function(t) {
+    t.classList.toggle('active', t.dataset.page === pageId);
+  });
+  document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
+  document.getElementById(pageId).classList.add('active');
+  if (pageId === 'page-plan') renderPlanPage();
+  if (pageId === 'page-history') renderHistoryPage();
+  if (pageId === 'page-settings') renderSettingsPage();
+  if (pageId === 'page-log') renderLogPage();
+  window.scrollTo(0, 0);
+}
+
+// ========================
 // NAVIGATION
 // ========================
 document.querySelectorAll('.tab').forEach(tab => {
-  tab.addEventListener('click', () => {
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    tab.classList.add('active');
-    document.getElementById(tab.dataset.page).classList.add('active');
-    if (tab.dataset.page === 'page-history') renderHistoryPage();
-    if (tab.dataset.page === 'page-settings') renderSettingsPage();
-    if (tab.dataset.page === 'page-log') renderLogPage();
-    window.scrollTo(0, 0);
-  });
+  tab.addEventListener('click', () => switchToTab(tab.dataset.page));
 });
 
 document.getElementById('weightStep').addEventListener('change', function() {
