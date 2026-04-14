@@ -468,6 +468,135 @@
     .done-badge { color: #2d8f4e; }
     .cal-dot { color: #fff; }
   }
+
+  /* === GUIDE PAGE === */
+  #page-guide .guide-tabs {
+    display: flex; gap: 6px; margin-bottom: 16px;
+    overflow-x: auto; -webkit-overflow-scrolling: touch;
+  }
+  #page-guide .guide-tab {
+    flex-shrink: 0; padding: 10px 18px; border-radius: 12px;
+    font-size: 14px; font-weight: 600; border: 1px solid var(--border);
+    background: var(--surface); color: var(--text2); cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+  }
+  #page-guide .guide-tab.active {
+    background: var(--accent); color: #000; border-color: var(--accent);
+  }
+  #page-guide .guide-banner {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 12px 14px; margin-bottom: 14px;
+    font-size: 13px; color: var(--text2); line-height: 1.5;
+  }
+  #page-guide .g-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); margin-bottom: 10px; padding: 14px 16px;
+  }
+  #page-guide .g-name { font-size: 15px; font-weight: 600; }
+  #page-guide .g-rpe { font-size: 11px; color: var(--text2); margin-top: 1px; }
+  #page-guide .g-note { font-size: 12px; color: var(--text2); margin-top: 2px; }
+  #page-guide .g-meta { display: flex; gap: 20px; margin: 6px 0 8px; }
+  #page-guide .g-meta-item { font-size: 12px; color: var(--text2); }
+  #page-guide .g-meta-label {
+    color: var(--text2); font-size: 10px; display: block;
+    margin-bottom: 1px; text-transform: uppercase; font-weight: 600;
+    letter-spacing: 0.5px; opacity: 0.6;
+  }
+  #page-guide .g-pills { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 10px; }
+  #page-guide .g-pill {
+    display: inline-block; padding: 3px 9px; border-radius: 6px;
+    font-size: 11px; font-weight: 600; white-space: nowrap;
+  }
+  #page-guide .g-yt-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 9px 16px; border-radius: 10px; font-size: 13px;
+    font-weight: 700; text-decoration: none;
+    background: rgba(255,0,51,0.15); color: #ff4444;
+    border: 1px solid rgba(255,0,51,0.3);
+    font-family: 'DM Sans', sans-serif;
+  }
+  #page-guide .g-yt-btn:active { opacity: 0.7; }
+  #page-guide .g-yt-btn svg { width: 14px; height: 14px; fill: #ff4444; }
+  #page-guide .g-step {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 22px; height: 22px; border-radius: 50%;
+    font-size: 11px; font-weight: 700; flex-shrink: 0; margin-right: 8px;
+    font-family: 'Space Mono', monospace;
+  }
+  #page-guide .g-week {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); margin-bottom: 10px; overflow: hidden;
+  }
+  #page-guide .g-week-hdr {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 16px; cursor: pointer; user-select: none;
+  }
+  #page-guide .g-week-hdr:active { opacity: 0.7; }
+  #page-guide .g-week-title { font-size: 15px; font-weight: 600; flex: 1; }
+  #page-guide .g-done-badge {
+    font-size: 11px; padding: 2px 8px; border-radius: 6px;
+    background: rgba(68,255,136,0.15); color: var(--green);
+    font-weight: 700; margin-left: 8px; flex-shrink: 0;
+    font-family: 'Space Mono', monospace;
+  }
+  #page-guide .g-chevron {
+    font-size: 18px; color: var(--text2); transition: transform 0.2s;
+    margin-left: 10px; flex-shrink: 0;
+  }
+  #page-guide .g-week.open .g-chevron { transform: rotate(180deg); }
+  #page-guide .g-week-body { display: none; padding: 0 8px 8px; }
+  #page-guide .g-week.open .g-week-body { display: block; }
+  #page-guide .g-inner {
+    border: none; border-bottom: 1px solid var(--border);
+    border-radius: 0; margin-bottom: 0; padding: 12px 4px;
+  }
+  #page-guide .g-inner:last-child { border-bottom: none; }
+  #page-guide .g-resource {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 14px 16px; margin-bottom: 10px;
+  }
+  #page-guide .g-resource-title { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+  #page-guide .g-resource-desc { font-size: 12px; color: var(--text2); margin-bottom: 10px; }
+  #page-guide .g-legend { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; }
+  #page-guide .g-legend span {
+    font-size: 11px; color: var(--text2); display: flex; align-items: center; gap: 4px;
+  }
+  #page-guide .g-legend-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+  #page-guide .g-section-label {
+    font-family: 'Space Mono', monospace; font-size: 12px;
+    color: var(--accent); text-transform: uppercase;
+    letter-spacing: 1px; margin: 20px 0 10px; padding-bottom: 6px;
+    border-bottom: 1px solid var(--border);
+  }
+  #page-guide .guide-panel { display: none; }
+  #page-guide .guide-panel.active { display: block; }
+
+  /* Guide completion styles */
+  #page-guide .g-card.g-done { border-left: 3px solid var(--green); }
+  #page-guide .g-card.g-done .g-name { opacity: 0.6; }
+  #page-guide .g-check-btn {
+    width: 30px; height: 30px; border-radius: 50%; border: 2px solid var(--border);
+    background: transparent; color: var(--text2); font-size: 16px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; flex-shrink: 0; margin-left: auto; transition: all 0.2s;
+  }
+  #page-guide .g-check-btn:active { opacity: 0.7; }
+  #page-guide .g-check-btn.checked {
+    border-color: var(--green); background: rgba(68,255,136,0.15); color: var(--green);
+  }
+  #page-guide .guide-tab .g-tab-count {
+    font-size: 11px; font-family: 'Space Mono', monospace; margin-left: 4px;
+  }
+  #page-guide .guide-tab .g-tab-count.all-done { color: var(--green); }
+  #page-guide .g-week-progress {
+    font-size: 11px; padding: 2px 8px; border-radius: 6px;
+    background: rgba(200,255,0,0.1); color: var(--text2);
+    font-weight: 700; margin-left: 8px; flex-shrink: 0;
+    font-family: 'Space Mono', monospace;
+  }
+  #page-guide .g-week-progress.all-done {
+    background: rgba(68,255,136,0.15); color: var(--green);
+  }
 </style>
 </head>
 <body>
@@ -477,8 +606,8 @@
   <button class="header-btn" id="todayLabel"></button>
 </div>
 
-<!-- LOG PAGE -->
-<div class="page active" id="page-log">
+<!-- OLDLOG PAGE -->
+<div class="page" id="page-log">
   <div id="exerciseList"></div>
   <div class="empty-state" id="emptyLog" style="display:none">
     <div class="emoji">🏋️</div>
@@ -529,15 +658,32 @@
   <div style="height: 30px"></div>
 </div>
 
+<!-- LOG PAGE (Guide) -->
+<div class="page active" id="page-guide">
+  <div class="guide-tabs">
+    <button class="guide-tab active" onclick="switchGuide('warmup')">Warm-up</button>
+    <button class="guide-tab" onclick="switchGuide('workout')">PT Workouts</button>
+    <button class="guide-tab" onclick="switchGuide('cooldown')">Cooldown</button>
+  </div>
+  <div class="guide-panel active" id="guide-warmup"></div>
+  <div class="guide-panel" id="guide-workout"></div>
+  <div class="guide-panel" id="guide-cooldown"></div>
+  <div style="height: 30px"></div>
+</div>
+
 <!-- TAB BAR -->
 <div class="tab-bar">
-  <button class="tab active" data-page="page-log">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+  <button class="tab active" data-page="page-guide">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/><line x1="9" y1="7" x2="16" y2="7"/><line x1="9" y1="11" x2="14" y2="11"/></svg>
     Log
   </button>
   <button class="tab" data-page="page-history">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 16l4-6 4 4 5-8"/></svg>
     History
+  </button>
+  <button class="tab" data-page="page-log">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+    OldLog
   </button>
   <button class="tab" data-page="page-plan">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
@@ -610,6 +756,68 @@ function saveSchedule(s) { localStorage.setItem('gymlog_schedule', JSON.stringif
 function getTplColor(tplId) {
   const idx = loadTemplates().findIndex(t => t.id === tplId);
   return TPL_COLORS[Math.max(0, idx) % TPL_COLORS.length];
+}
+
+// Guide completion tracking (per day)
+function loadGuideDone() {
+  const d = localStorage.getItem('gymlog_guide_done');
+  return d ? JSON.parse(d) : {};
+}
+function saveGuideDone(data) { localStorage.setItem('gymlog_guide_done', JSON.stringify(data)); }
+function guideExerciseFromKey(key) {
+  const parts = key.split('-');
+  const idx = parseInt(parts[parts.length - 1]);
+  if (key.startsWith('warmup-')) return guideWarmup[idx];
+  if (key.startsWith('cooldown-')) return guideCooldown[idx];
+  const weekMatch = key.match(/^week(\d+)-/);
+  if (weekMatch) {
+    const wk = guideWeeks.find(w => w.week === parseInt(weekMatch[1]));
+    return wk ? wk.moves[idx] : null;
+  }
+  return null;
+}
+function toggleGuideDone(key) {
+  const now = new Date();
+  const today = now.toLocaleDateString('en-CA');
+  const data = loadGuideDone();
+  if (!data[today]) data[today] = [];
+  const idx = data[today].indexOf(key);
+  const marking = idx < 0;
+  if (idx >= 0) { data[today].splice(idx, 1); } else { data[today].push(key); }
+  saveGuideDone(data);
+
+  // Sync with workout history
+  const history = loadHistory();
+  const histId = 'guide_' + key;
+  if (marking) {
+    const ex = guideExerciseFromKey(key);
+    if (ex) {
+      history.push({
+        id: histId,
+        exerciseId: histId,
+        guideName: ex.name,
+        weight: 0,
+        reps: 1,
+        date: today,
+        time: now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+        timestamp: now.toISOString()
+      });
+      saveHistory(history);
+    }
+  } else {
+    const filtered = history.filter(h => !(h.id === histId && h.date === today));
+    saveHistory(filtered);
+  }
+}
+function isGuideDone(key) {
+  const today = new Date().toLocaleDateString('en-CA');
+  const data = loadGuideDone();
+  return (data[today] || []).includes(key);
+}
+function getGuideDoneCount(prefix) {
+  const today = new Date().toLocaleDateString('en-CA');
+  const data = loadGuideDone();
+  return (data[today] || []).filter(k => k.startsWith(prefix)).length;
 }
 
 let editingTplId = null;
@@ -818,6 +1026,13 @@ function renderHistoryPage() {
   }
   empty.style.display = 'none';
 
+  // Auto-select today if no date selected
+  if (!histSelectedDate) {
+    histSelectedDate = new Date().toLocaleDateString('en-CA');
+    histYear = new Date().getFullYear();
+    histMonth = new Date().getMonth();
+  }
+
   renderHistoryCalendar(history);
   renderHistoryDetail(history);
 }
@@ -910,14 +1125,21 @@ function renderHistoryDetail(history) {
 
   html += Object.keys(byEx).map(function(exId) {
     var ex = exercises.find(function(e) { return e.id === exId; });
-    var name = ex ? ex.name : 'Unknown';
-    var muscle = ex ? ex.muscle : '';
+    var isGuide = exId.startsWith('guide_');
+    var name = ex ? ex.name : (byEx[exId][0].guideName || 'Unknown');
+    var muscle = ex ? ex.muscle : (isGuide ? 'Guide' : '');
 
     return '<div class="hist-card">' +
       '<div class="hist-card-name">' + escHtml(name) +
         (muscle ? ' <span class="muscle-tag">' + escHtml(muscle) + '</span>' : '') +
       '</div>' +
       byEx[exId].map(function(s, i) {
+        if (isGuide) {
+          return '<div class="hist-set">' +
+            '<span class="check">✓</span> Completed' +
+            '<span class="time">' + s.time + '</span>' +
+          '</div>';
+        }
         return '<div class="hist-set">' +
           '<span class="check">✓</span> ' +
           'Set ' + (i + 1) + ': ' + s.weight + ' lbs × ' + s.reps + ' reps' +
@@ -1035,8 +1257,8 @@ function exportCSV() {
   let csv = 'Date,Time,Exercise,Muscle Group,Weight (lbs),Reps\n';
   history.forEach(h => {
     const ex = exercises.find(e => e.id === h.exerciseId);
-    const name = ex ? ex.name : 'Unknown';
-    const muscle = ex ? ex.muscle : '';
+    const name = ex ? ex.name : (h.guideName || 'Unknown');
+    const muscle = ex ? ex.muscle : (h.exerciseId && h.exerciseId.startsWith('guide_') ? 'Guide' : '');
     csv += `${h.date},${h.time},"${name}","${muscle}",${h.weight},${h.reps}\n`;
   });
 
@@ -1281,7 +1503,194 @@ function switchToTab(pageId) {
   if (pageId === 'page-history') renderHistoryPage();
   if (pageId === 'page-settings') renderSettingsPage();
   if (pageId === 'page-log') renderLogPage();
+  if (pageId === 'page-guide') renderGuidePage();
   window.scrollTo(0, 0);
+}
+
+// ========================
+// GUIDE PAGE
+// ========================
+const GC={
+  blue:{bg:'rgba(68,136,255,0.15)',t:'#4488ff'},
+  purple:{bg:'rgba(140,100,255,0.15)',t:'#8c64ff'},
+  amber:{bg:'rgba(255,170,50,0.15)',t:'#ffaa32'},
+  coral:{bg:'rgba(255,100,80,0.15)',t:'#ff6450'},
+  pink:{bg:'rgba(255,100,160,0.15)',t:'#ff64a0'},
+  teal:{bg:'rgba(68,220,160,0.15)',t:'#44dca0'},
+  green:{bg:'rgba(68,255,136,0.15)',t:'#44ff88'},
+  gray:{bg:'rgba(160,160,160,0.15)',t:'#999'},
+  red:{bg:'rgba(255,68,68,0.15)',t:'#ff4444'}
+};
+function gPill(n,c){const x=GC[c]||GC.gray;return `<span class="g-pill" style="background:${x.bg};color:${x.t}">${n}</span>`;}
+function gYtBtn(u){return `<a class="g-yt-btn" href="${u}" target="_blank" rel="noopener"><svg viewBox="0 0 24 24"><path d="M23.5 6.2a3 3 0 00-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 00.5 6.2 31.5 31.5 0 000 12a31.5 31.5 0 00.5 5.8 3 3 0 002.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 002.1-2.1A31.5 31.5 0 0024 12a31.5 31.5 0 00-.5-5.8zM9.5 15.6V8.4L16 12l-6.5 3.6z"/></svg>Watch</a>`;}
+
+const guideWarmup=[
+  {name:"Low intensity cardio",reps:"5 minutes",note:"Walk, bike, or elliptical at easy pace",muscles:[["Cardio","red"]],yt:"https://www.youtube.com/results?search_query=5+minute+low+intensity+cardio+warmup+gym"},
+  {name:"Arm circles (big)",reps:"10 each direction",note:"Both arms, forward & backward",muscles:[["Shoulders","pink"]],yt:"https://www.youtube.com/watch?v=hne3nHGXPRM"},
+  {name:"Banded external & internal rotations",reps:"10 each, each arm",note:"Light resistance band",muscles:[["Rotator cuff","pink"],["Shoulders","pink"]],yt:"https://www.youtube.com/watch?v=ybNV36DoRfY"},
+  {name:"Scapular retraction or TRX row",reps:"10 reps",note:"Squeeze shoulder blades together",muscles:[["Upper back","teal"],["Rhomboids","teal"]],yt:"https://www.youtube.com/watch?v=TOcHjmKThJI&t=9s"},
+  {name:"Leg swings",reps:"10 each leg",note:"Front-to-back, hold something for balance",muscles:[["Hip flexors","amber"],["Hamstrings","blue"]],yt:"https://www.youtube.com/shorts/G2WyCoVwv8Y"},
+  {name:"Leg openers or 90/90s",reps:"10 each leg / each way",note:"Hip mobility drill",muscles:[["Hips","purple"],["Glutes","purple"]],yt:"https://www.youtube.com/shorts/npdpCtfPI5I"},
+  {name:"Squat (assisted if needed)",reps:"8 reps",note:"Bodyweight, hold rack if needed",muscles:[["Quads","blue"],["Glutes","purple"]],yt:"https://www.youtube.com/results?search_query=bodyweight+squat+form+tutorial+beginner+short"},
+  {name:"Plank core activation",reps:"< 30 seconds",note:"Hold steady, breathe normally",muscles:[["Core","amber"],["Shoulders","pink"]],yt:"https://www.youtube.com/results?search_query=plank+core+activation+warmup+30+seconds+beginner"}
+];
+const guideCooldown=[
+  {name:"Low intensity cardio",reps:"5 minutes",note:"Walk or easy bike to lower heart rate",muscles:[["Cardio","red"]],yt:"https://www.youtube.com/results?search_query=5+minute+cool+down+walk+after+workout"},
+  {name:"Shoulder scaptions",reps:"2\u00d710",note:"Light weight, thumbs up, raise to shoulder height",muscles:[["Shoulders","pink"],["Rotator cuff","pink"]],yt:"https://www.youtube.com/watch?v=sJYXn8thNEQ"},
+  {name:"Child\u2019s pose",reps:"Hold 1:00",note:"Relax into it, breathe deeply",muscles:[["Lower back","green"],["Lats","teal"],["Hips","purple"]],yt:"https://www.youtube.com/watch?v=kH12QrSGedM"},
+  {name:"Hip flexor stretch machine",reps:"2\u00d70:30 each side",note:"Gentle stretch, don\u2019t force",muscles:[["Hip flexors","amber"],["Quads","blue"]],yt:"https://www.youtube.com/watch?v=KsMn-6blFy8"},
+  {name:"Standing chest stretch",reps:"2\u00d70:30 each side",note:"Use doorframe or rack",muscles:[["Chest","coral"],["Front delts","coral"]],yt:"https://www.youtube.com/shorts/zCPyu1TG8ws"}
+];
+const guideYoga=[
+  {name:"Longer gentle yoga",time:"20 min",ch:"Breathe and Flow",yt:"https://www.youtube.com/watch?v=uGkU87MNtUI"},
+  {name:"5 minute full body yoga",time:"5 min",ch:"Yoga With Adriene",yt:"https://www.youtube.com/watch?v=Kvoq4luIYVc"},
+  {name:"Beginner gentle yoga",time:"17 min",ch:"Breathe and Flow",yt:"https://www.youtube.com/watch?v=rsuO6K2RUtI"}
+];
+const guideWeeks=[
+  {week:1,label:"Week 1 \u2014 Assessments & baseline",done:true,moves:[
+    {name:"Lying Leg Raises",sets:"3\u00d710",weight:"BW",muscles:[["Lower abs","amber"],["Hip flexors","amber"]],yt:"https://youtube.com/shorts/5uB0KaoCF9w?si=VC8zkrvDDxCst_9_"},
+    {name:"Glute Bridge",sets:"3\u00d712",weight:"BW \u2192 25lb med ball",muscles:[["Glutes","purple"],["Hamstrings","blue"]],yt:"https://www.youtube.com/shorts/X_IGw8U_e38"},
+    {name:"Leg Press",sets:"3\u00d710",weight:"90 \u2192 140 \u2192 180 lbs",muscles:[["Quads","blue"],["Glutes","purple"],["Hamstrings","blue"]],yt:"https://youtube.com/shorts/nDh_BlnLCGc?si=bZbd12CVKK-27oZy"}
+  ]},
+  {week:2,label:"Week 2 \u2014 Full body introduction",done:true,moves:[
+    {name:"Goblet Squat",sets:"1wu + 3\u00d712",weight:"25 lbs",rpe:"9",muscles:[["Quads","blue"],["Glutes","purple"],["Core","amber"]],yt:"https://youtube.com/shorts/eLX_dyvooKQ?si=7pMS5J320iG0ADQA"},
+    {name:"Assisted Pull-ups",sets:"1wu + 3\u00d78",weight:"90\u219275 assist",rpe:"8",muscles:[["Lats","teal"],["Biceps","teal"],["Upper back","teal"]],yt:"https://youtu.be/gx0RWT7WbmA?si=5tIa9HEcDYe6LJ2H"},
+    {name:"Push-ups (knees)",sets:"1wu + 3\u00d78",weight:"Knees",rpe:"8",muscles:[["Chest","coral"],["Triceps","coral"],["Shoulders","pink"]],yt:"https://www.youtube.com/results?search_query=knee+push+ups+proper+form+tutorial+beginner"},
+    {name:"Glute Bridges",sets:"1wu + 3\u00d712",weight:"25 lbs",rpe:"6-7",muscles:[["Glutes","purple"],["Hamstrings","blue"]],yt:"https://www.youtube.com/shorts/X_IGw8U_e38"},
+    {name:"Deadbugs (feet only)",sets:"3\u00d710 each",weight:"BW",rpe:"6-7",muscles:[["Deep core","amber"],["Transverse abs","amber"]],yt:"https://youtu.be/o4GKiEoYClI?si=C17vNMXpadgZJX7v"},
+    {name:"Bosu Ball Plank",sets:"1wu + 3\u00d70:45",weight:"BW",muscles:[["Core","amber"],["Shoulders","pink"],["Stability","pink"]],yt:"https://youtube.com/shorts/PcEUkLP_m78?si=0egccUbJSnc5HvCg"},
+    {name:"Kettlebell Row",sets:"1wu + 3\u00d712ea",weight:"22 lb KB",rpe:"9",muscles:[["Lats","teal"],["Rhomboids","teal"],["Biceps","teal"]],yt:"https://youtube.com/shorts/JEC5QU-_t1Q?si=uTIts3tXDbzdQCjG"}
+  ]},
+  {week:3,label:"Week 3 \u2014 Machine & pressing",done:true,moves:[
+    {name:"Goblet Squat",sets:"1wu + 3\u00d712",weight:"30 lbs",muscles:[["Quads","blue"],["Glutes","purple"],["Core","amber"]],yt:"https://youtube.com/shorts/eLX_dyvooKQ?si=7pMS5J320iG0ADQA"},
+    {name:"Dumbbell Row",sets:"1wu + 3\u00d712",weight:"25\u219230 lbs",muscles:[["Lats","teal"],["Rhomboids","teal"],["Biceps","teal"]],yt:"https://youtube.com/shorts/H8jf3DwlIlo?si=UPgD-oGwGW-RV_rf"},
+    {name:"Chest Press Machine",sets:"1wu + 3\u00d710",weight:"10\u219220\u219230",muscles:[["Chest","coral"],["Triceps","coral"],["Front delts","coral"]],yt:"https://youtu.be/sqNwDkUU_Ps?si=5xGkd0NSPPZIGsmQ"},
+    {name:"DB Shoulder Press",sets:"1wu + 3\u00d710",weight:"10\u219215 lbs",muscles:[["Shoulders","pink"],["Triceps","coral"],["Upper traps","pink"]],yt:"https://youtube.com/shorts/k6tzKisR3NY?si=7QcBv9UO6kQEB-Ad"},
+    {name:"Hip Thrust Machine",sets:"3\u00d710",weight:"0 lbs (form)",muscles:[["Glutes","purple"],["Hamstrings","blue"]],yt:"https://youtube.com/shorts/wUq18mXmWVQ?si=cnXDS0bF08fV89bt"},
+    {name:"Bosu Ball Plank",sets:"1\u00d70:50",weight:"BW",muscles:[["Core","amber"],["Shoulders","pink"],["Stability","pink"]],yt:"https://youtube.com/shorts/PcEUkLP_m78?si=0egccUbJSnc5HvCg"},
+    {name:"Skill Mill",sets:"1\u00d71:00",weight:"\u2014",muscles:[["Cardio","red"],["Full body","gray"]],yt:"https://youtube.com/shorts/Fqk97Q6_XVs?si=ajpYK0uKFyskthl8"}
+  ]},
+  {week:4,label:"Week 4 \u2014 Unilateral & grip",done:false,moves:[
+    {name:"Lunge",sets:"1wu + 3\u00d78ea",weight:"\u2014",muscles:[["Quads","blue"],["Glutes","purple"],["Hamstrings","blue"]],yt:"https://www.youtube.com/results?search_query=forward+lunge+proper+form+tutorial+beginner"},
+    {name:"Assisted Pull-ups",sets:"1wu + 3\u00d78",weight:"\u2014",muscles:[["Lats","teal"],["Biceps","teal"],["Upper back","teal"]],yt:"https://youtu.be/gx0RWT7WbmA?si=5tIa9HEcDYe6LJ2H"},
+    {name:"Push-ups",sets:"1wu + 3\u00d710",weight:"\u2014",muscles:[["Chest","coral"],["Triceps","coral"],["Shoulders","pink"]],yt:"https://www.youtube.com/results?search_query=push+ups+proper+form+tutorial+progression"},
+    {name:"Back Extensions",sets:"1wu + 3\u00d78-10",weight:"\u2014",muscles:[["Lower back","green"],["Glutes","purple"],["Erectors","green"]],yt:"https://www.youtube.com/results?search_query=back+extension+exercise+proper+form+tutorial"},
+    {name:"Single Leg Calf Raises",sets:"3\u00d78 each",weight:"\u2014",muscles:[["Calves","blue"],["Soleus","blue"]],yt:"https://www.youtube.com/results?search_query=single+leg+calf+raise+proper+form+tutorial"},
+    {name:"Farmers Carry",sets:"1wu + 3\u00d7 area",weight:"\u2014",muscles:[["Grip","gray"],["Core","amber"],["Traps","gray"]],yt:"https://www.youtube.com/results?search_query=farmers+carry+walk+proper+form+tutorial"},
+    {name:"Lying Leg Raises",sets:"1wu + 3\u00d712",weight:"\u2014",muscles:[["Lower abs","amber"],["Hip flexors","amber"]],yt:"https://youtube.com/shorts/5uB0KaoCF9w?si=VC8zkrvDDxCst_9_"}
+  ]},
+  {week:5,label:"Week 5 \u2014 Anti-rotation",done:false,moves:[
+    {name:"Lunge",sets:"1wu + 3\u00d78ea",weight:"\u2014",muscles:[["Quads","blue"],["Glutes","purple"],["Hamstrings","blue"]],yt:"https://www.youtube.com/results?search_query=forward+lunge+proper+form+tutorial+beginner"},
+    {name:"Assisted Pull-ups",sets:"1wu + 3\u00d78",weight:"\u2014",muscles:[["Lats","teal"],["Biceps","teal"],["Upper back","teal"]],yt:"https://youtu.be/gx0RWT7WbmA?si=5tIa9HEcDYe6LJ2H"},
+    {name:"Push-ups",sets:"1wu + 3\u00d710",weight:"\u2014",muscles:[["Chest","coral"],["Triceps","coral"],["Shoulders","pink"]],yt:"https://www.youtube.com/results?search_query=push+ups+proper+form+tutorial+progression"},
+    {name:"Back Extensions",sets:"1wu + 3\u00d78-10",weight:"\u2014",muscles:[["Lower back","green"],["Glutes","purple"],["Erectors","green"]],yt:"https://www.youtube.com/results?search_query=back+extension+exercise+proper+form+tutorial"},
+    {name:"Single Leg Calf Raises",sets:"3\u00d78ea",weight:"\u2014",muscles:[["Calves","blue"],["Soleus","blue"]],yt:"https://www.youtube.com/results?search_query=single+leg+calf+raise+proper+form+tutorial"},
+    {name:"Pallof Hold / Side Plank",sets:"1wu + 3\u00d70:30ea",weight:"\u2014",muscles:[["Core","amber"],["Obliques","amber"]],yt:"https://www.youtube.com/results?search_query=pallof+hold+cable+anti+rotation+core+form+tutorial"},
+    {name:"Skill Mill",sets:"1wu + 3\u00d71:00",weight:"\u2014",muscles:[["Cardio","red"],["Full body","gray"]],yt:"https://youtube.com/shorts/Fqk97Q6_XVs?si=ajpYK0uKFyskthl8"}
+  ]},
+  {week:6,label:"Week 6 \u2014 Variation & progression",done:false,moves:[
+    {name:"Lunge",sets:"1wu + 3\u00d78ea",weight:"\u2014",muscles:[["Quads","blue"],["Glutes","purple"],["Hamstrings","blue"]],yt:"https://www.youtube.com/results?search_query=forward+lunge+proper+form+tutorial+beginner"},
+    {name:"Horizontal Row",sets:"1wu + 3\u00d78",weight:"\u2014",muscles:[["Mid-back","teal"],["Rhomboids","teal"],["Rear delts","teal"],["Biceps","teal"]],yt:"https://www.youtube.com/results?search_query=inverted+horizontal+row+bodyweight+form+tutorial"},
+    {name:"Incline Bench Press",sets:"1wu + 3\u00d710",weight:"\u2014",muscles:[["Upper chest","coral"],["Front delts","coral"],["Triceps","coral"]],yt:"https://www.youtube.com/results?search_query=incline+bench+press+dumbbell+proper+form+tutorial"},
+    {name:"Back Extensions",sets:"1wu + 3\u00d78-10",weight:"\u2014",muscles:[["Lower back","green"],["Glutes","purple"],["Erectors","green"]],yt:"https://www.youtube.com/results?search_query=back+extension+exercise+proper+form+tutorial"},
+    {name:"Core (trainer\u2019s choice)",sets:"1wu + 3\u00d7",weight:"\u2014",muscles:[["Core","amber"],["Abs","amber"],["Obliques","amber"]],yt:"https://www.youtube.com/results?search_query=best+core+exercises+gym+beginner+tutorial"},
+    {name:"Skill Mill",sets:"1wu + 3\u00d71:00",weight:"\u2014",muscles:[["Cardio","red"],["Full body","gray"]],yt:"https://youtube.com/shorts/Fqk97Q6_XVs?si=ajpYK0uKFyskthl8"}
+  ]}
+];
+
+function renderGuideCard(m,idx,stepColor,hasWeight,key){
+  const p=m.muscles.map(([n,c])=>gPill(n,c)).join('');
+  const sc=GC[stepColor]||GC.gray;
+  const done=key?isGuideDone(key):false;
+  return `<div class="g-card${hasWeight?' g-inner':''}${done?' g-done':''}">
+    <div style="display:flex;align-items:center;margin-bottom:2px">
+      ${idx!==null?`<span class="g-step" style="background:${sc.bg};color:${sc.t}">${idx}</span>`:''}
+      <div class="g-name">${m.name}</div>
+      ${key?`<button class="g-check-btn${done?' checked':''}" onclick="onGuideCheck('${key}')">✓</button>`:''}
+    </div>
+    ${m.note?`<div class="g-note">${m.note}</div>`:''}
+    ${m.rpe?`<div class="g-rpe">RPE ${m.rpe}</div>`:''}
+    <div class="g-meta">
+      <div class="g-meta-item"><span class="g-meta-label">${hasWeight?'Sets':'Reps / time'}</span>${m.sets||m.reps}</div>
+      ${hasWeight&&m.weight?`<div class="g-meta-item"><span class="g-meta-label">Weight</span>${m.weight}</div>`:''}
+    </div>
+    <div class="g-pills">${p}</div>
+    ${gYtBtn(m.yt)}
+  </div>`;
+}
+
+let activeGuideTab = 'warmup';
+function onGuideCheck(key){
+  toggleGuideDone(key);
+  renderGuidePage();
+  switchGuide(activeGuideTab);
+}
+
+function switchGuide(id){
+  activeGuideTab=id;
+  document.querySelectorAll('#page-guide .guide-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('#page-guide .guide-tab').forEach(b=>b.classList.remove('active'));
+  document.getElementById('guide-'+id).classList.add('active');
+  document.querySelectorAll('#page-guide .guide-tab')[{warmup:0,workout:1,cooldown:2}[id]].classList.add('active');
+}
+
+function renderGuidePage(){
+  // Warmup section
+  const wuTotal=guideWarmup.length;
+  const wuDone=getGuideDoneCount('warmup-');
+  let wuH='<div class="guide-banner">Do before every session \u2014 getting muscles warm and blood flowing.</div>';
+  guideWarmup.forEach((m,i)=>{wuH+=renderGuideCard(m,i+1,'amber',false,'warmup-'+i);});
+  document.getElementById('guide-warmup').innerHTML=wuH;
+
+  // Cooldown section
+  const cdTotal=guideCooldown.length;
+  const cdDone=getGuideDoneCount('cooldown-');
+  let cdH='<div class="guide-banner">Do after every session. Hold each stretch gently \u2014 no bouncing.</div>';
+  guideCooldown.forEach((m,i)=>{cdH+=renderGuideCard(m,i+1,'teal',false,'cooldown-'+i);});
+  cdH+='<div class="g-section-label">Yoga Resources</div>';
+  guideYoga.forEach(r=>{cdH+=`<div class="g-resource"><div class="g-resource-title">${r.name}</div><div class="g-resource-desc">${r.time} \u00b7 ${r.ch}</div>${gYtBtn(r.yt)}</div>`;});
+  document.getElementById('guide-cooldown').innerHTML=cdH;
+
+  // Workout section with weeks
+  let wkTotalAll=0,wkDoneAll=0;
+  let wkH=`<div class="g-legend">
+    <span><span class="g-legend-dot" style="background:rgba(68,136,255,0.3)"></span>Legs</span>
+    <span><span class="g-legend-dot" style="background:rgba(140,100,255,0.3)"></span>Glutes</span>
+    <span><span class="g-legend-dot" style="background:rgba(255,170,50,0.3)"></span>Core</span>
+    <span><span class="g-legend-dot" style="background:rgba(255,100,80,0.3)"></span>Push</span>
+    <span><span class="g-legend-dot" style="background:rgba(68,220,160,0.3)"></span>Pull</span>
+    <span><span class="g-legend-dot" style="background:rgba(68,255,136,0.3)"></span>Post. chain</span>
+    <span><span class="g-legend-dot" style="background:rgba(255,68,68,0.3)"></span>Cardio</span>
+  </div>`;
+  guideWeeks.forEach(wk=>{
+    const prefix='week'+wk.week+'-';
+    const weekTotal=wk.moves.length;
+    const weekDone=getGuideDoneCount(prefix);
+    wkTotalAll+=weekTotal; wkDoneAll+=weekDone;
+    const weekAllDone=weekDone===weekTotal&&weekTotal>0;
+    let body='';
+    wk.moves.forEach((m,i)=>{body+=renderGuideCard(m,null,null,true,prefix+i);});
+    wkH+=`<div class="g-week" id="gweek-${wk.week}">
+      <div class="g-week-hdr" onclick="document.getElementById('gweek-${wk.week}').classList.toggle('open')">
+        <span class="g-week-title">${wk.label}</span>
+        <span class="g-week-progress${weekAllDone?' all-done':''}">${weekDone}/${weekTotal}</span>
+        ${wk.done?'<span class="g-done-badge">Done</span>':''}
+        <span class="g-chevron">\u25BE</span>
+      </div>
+      <div class="g-week-body">${body}</div>
+    </div>`;
+  });
+  wkH+='<div class="guide-banner" style="margin-top:10px">Weeks 7\u201312 not yet programmed by trainer</div>';
+  document.getElementById('guide-workout').innerHTML=wkH;
+
+  // Update sub-tab labels with counts
+  const tabs=document.querySelectorAll('#page-guide .guide-tab');
+  const wuAllDone=wuDone===wuTotal&&wuTotal>0;
+  const cdAllDone=cdDone===cdTotal&&cdTotal>0;
+  const wkAllDoneAll=wkDoneAll===wkTotalAll&&wkTotalAll>0;
+  tabs[0].innerHTML='Warm-up <span class="g-tab-count'+(wuAllDone?' all-done':'')+'\">('+wuDone+'/'+wuTotal+')</span>';
+  tabs[1].innerHTML='PT Workouts <span class="g-tab-count'+(wkAllDoneAll?' all-done':'')+'\">('+wkDoneAll+'/'+wkTotalAll+')</span>';
+  tabs[2].innerHTML='Cooldown <span class="g-tab-count'+(cdAllDone?' all-done':'')+'\">('+cdDone+'/'+cdTotal+')</span>';
 }
 
 // ========================
@@ -1301,7 +1710,7 @@ document.getElementById('weightStep').addEventListener('change', function() {
 function init() {
   const now = new Date();
   document.getElementById('todayLabel').textContent = now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
-  renderLogPage();
+  renderGuidePage();
 }
 
 init();
