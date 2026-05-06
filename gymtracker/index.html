@@ -570,6 +570,8 @@
   }
   #page-guide .guide-panel { display: none; }
   #page-guide .guide-panel.active { display: block; }
+  #page-guide .g-week .g-week { background: var(--surface2); border-color: var(--border); }
+  #page-guide .g-week .g-week .g-week-title { font-size: 13px; }
 
   /* Guide completion styles */
   #page-guide .g-card.g-done { border-left: 3px solid var(--green); }
@@ -663,10 +665,12 @@
   <div class="guide-tabs">
     <button class="guide-tab active" onclick="switchGuide('warmup')">Warm-up</button>
     <button class="guide-tab" onclick="switchGuide('workout')">PT Workouts</button>
+    <button class="guide-tab" onclick="switchGuide('workout3')">PT Workout3</button>
     <button class="guide-tab" onclick="switchGuide('cooldown')">Cooldown</button>
   </div>
   <div class="guide-panel active" id="guide-warmup"></div>
   <div class="guide-panel" id="guide-workout"></div>
+  <div class="guide-panel" id="guide-workout3"></div>
   <div class="guide-panel" id="guide-cooldown"></div>
   <div style="height: 30px"></div>
 </div>
@@ -769,6 +773,15 @@ function guideExerciseFromKey(key) {
   const idx = parseInt(parts[parts.length - 1]);
   if (key.startsWith('warmup-')) return guideWarmup[idx];
   if (key.startsWith('cooldown-')) return guideCooldown[idx];
+  const wo3Match = key.match(/^wo3-w(\d+)d(\d+)-/);
+  if (wo3Match) {
+    const wk = guideWorkout3.find(w => w.week === parseInt(wo3Match[1]));
+    if (wk) {
+      const day = wk.days.find(d => d.day === parseInt(wo3Match[2]));
+      return day ? day.moves[idx] : null;
+    }
+    return null;
+  }
   const weekMatch = key.match(/^week(\d+)-/);
   if (weekMatch) {
     const wk = guideWeeks.find(w => w.week === parseInt(weekMatch[1]));
@@ -1522,7 +1535,7 @@ const GC={
   red:{bg:'rgba(255,68,68,0.15)',t:'#ff4444'}
 };
 function gPill(n,c){const x=GC[c]||GC.gray;return `<span class="g-pill" style="background:${x.bg};color:${x.t}">${n}</span>`;}
-function gYtBtn(u){return `<a class="g-yt-btn" href="${u}" target="_blank" rel="noopener"><svg viewBox="0 0 24 24"><path d="M23.5 6.2a3 3 0 00-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 00.5 6.2 31.5 31.5 0 000 12a31.5 31.5 0 00.5 5.8 3 3 0 002.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 002.1-2.1A31.5 31.5 0 0024 12a31.5 31.5 0 00-.5-5.8zM9.5 15.6V8.4L16 12l-6.5 3.6z"/></svg>Watch</a>`;}
+function gYtBtn(u){if(!u)return '';return `<a class="g-yt-btn" href="${u}" target="_blank" rel="noopener"><svg viewBox="0 0 24 24"><path d="M23.5 6.2a3 3 0 00-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 00.5 6.2 31.5 31.5 0 000 12a31.5 31.5 0 00.5 5.8 3 3 0 002.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 002.1-2.1A31.5 31.5 0 0024 12a31.5 31.5 0 00-.5-5.8zM9.5 15.6V8.4L16 12l-6.5 3.6z"/></svg>Watch</a>`;}
 
 const guideWarmup=[
   {name:"Low intensity cardio",reps:"5 minutes",note:"Walk, bike, or elliptical at easy pace",muscles:[["Cardio","red"]],yt:"https://www.youtube.com/results?search_query=5+minute+low+intensity+cardio+warmup+gym"},
@@ -1598,6 +1611,145 @@ const guideWeeks=[
   ]}
 ];
 
+const guideWorkout3=[
+  {week:1,label:"Week 1",days:[
+    {day:1,label:"Full Body Muscular Strength (Day 1)",moves:[
+      {name:"Dynamic Warmup",sets:"—",muscles:[["Full body","gray"]],yt:""},
+      {name:"Assisted Pull-ups",sets:"1xwarmup, 3x8",weight:"At least 75, push for 60!",muscles:[["Lats","teal"],["Biceps","teal"],["Upper back","teal"]],yt:"https://www.youtube.com/watch?v=OQtn9yngfAQ"},
+      {name:"Walking Lunges (with stick if needed)",sets:"1xwarmup, 3x8each",muscles:[["Quads","blue"],["Glutes","purple"],["Hamstrings","blue"]],yt:"https://www.youtube.com/watch?v=tQNktxPkSeE"},
+      {name:"Dumbbell Bench Press",sets:"1x warmup, 3x10",muscles:[["Chest","coral"],["Triceps","coral"],["Shoulders","pink"]],yt:"https://www.youtube.com/watch?v=ZaDlbm8E8Tg"},
+      {name:"Banded Monster Walk",sets:"3x10each",muscles:[["Glutes","purple"],["Hip abductors","purple"]],yt:"https://www.youtube.com/watch?v=MZ1HbVflLUI"},
+      {name:"Lying Leg Raises",sets:"3x12",muscles:[["Lower abs","amber"],["Hip flexors","amber"]],yt:"https://www.youtube.com/shorts/FijNSgahpz0"},
+      {name:"Back Extension Machine",sets:"3x12",muscles:[["Lower back","green"],["Glutes","purple"]],yt:""},
+      {name:"Single Leg Deficit Calf Raises",sets:"3x10each",muscles:[["Calves","blue"],["Soleus","blue"]],yt:"https://www.youtube.com/watch?v=eD1kh9WDNqs"},
+      {name:"Cooldown",sets:"—",muscles:[["Recovery","gray"]],yt:""}
+    ]},
+    {day:2,label:"Full Body Muscular Endurance (Day 2)",moves:[
+      {name:"Dynamic Warmup",sets:"—",muscles:[["Full body","gray"]],yt:""},
+      {name:"Plate Loaded Chest Press Machine",sets:"1xwarmup, 4x10",muscles:[["Chest","coral"],["Triceps","coral"],["Shoulders","pink"]],yt:""},
+      {name:"Bulgarian Split Squat (with stick to help)",sets:"1xwarmup, 3x8each",muscles:[["Quads","blue"],["Glutes","purple"],["Hamstrings","blue"]],yt:"https://www.youtube.com/watch?v=xVYExUDxCEM"},
+      {name:"Cable Row",sets:"1xwarmup, 3x10",muscles:[["Lats","teal"],["Rhomboids","teal"],["Biceps","teal"]],yt:""},
+      {name:"Deadbugs",sets:"3x8each",note:"Keep low back touching floor and core braced. Try with a medball if too easy!",muscles:[["Deep core","amber"],["Transverse abs","amber"]],yt:"https://www.youtube.com/watch?v=o4GKiEoYClI"},
+      {name:"Seated Calf Raise Machine",sets:"1xwarmup, 3x12",muscles:[["Calves","blue"],["Soleus","blue"]],yt:"https://www.youtube.com/watch?v=Xd7_WGLa2us"},
+      {name:"Palloff Hold Squats",sets:"3x8each side",muscles:[["Core","amber"],["Obliques","amber"]],yt:"https://www.youtube.com/watch?v=3LtfMucz24Y"},
+      {name:"Cooldown",sets:"—",muscles:[["Recovery","gray"]],yt:""}
+    ]},
+    {day:3,label:"Full Body Plyos & VO2 max Accessory (Day 3)",moves:[
+      {name:"Dynamic Warmup",sets:"—",muscles:[["Full body","gray"]],yt:""},
+      {name:"Skill Mill (or treadmill)",sets:"3x3:00",muscles:[["Cardio","red"],["Full body","gray"]],yt:""},
+      {name:"Side Plank",sets:"3x0:40-1:00 each side!",muscles:[["Core","amber"],["Obliques","amber"]],yt:"https://www.youtube.com/watch?v=_R389Jk0tIo"},
+      {name:"Banded Facepulls",sets:"3x10",muscles:[["Rear delts","teal"],["Upper back","teal"]],yt:"https://www.youtube.com/watch?v=2Hn4Ahkzk6E"},
+      {name:"Hip Thrust Machine",sets:"3x8",muscles:[["Glutes","purple"],["Hamstrings","blue"]],yt:"https://www.youtube.com/watch?v=ZwCSkYHGZzk"},
+      {name:"Pushups (knees)",sets:"3x8-12",muscles:[["Chest","coral"],["Triceps","coral"],["Shoulders","pink"]],yt:"https://www.youtube.com/watch?v=lFR1GWy1Dcs"},
+      {name:"Explosive Step-ups",sets:"3x8each",note:"Work on being as explosive as possible while maintaining proper form!",muscles:[["Quads","blue"],["Glutes","purple"],["Calves","blue"]],yt:"https://www.youtube.com/watch?v=vnP-ZKi0ZAM"},
+      {name:"Supinated Lat Pulldowns",sets:"3x10",muscles:[["Lats","teal"],["Biceps","teal"]],yt:"https://www.youtube.com/watch?v=Wg7Lm8xbctg"},
+      {name:"Cooldown",sets:"—",muscles:[["Recovery","gray"]],yt:""}
+    ]}
+  ]},
+  {week:2,label:"Week 2",days:[
+    {day:1,label:"Full Body Muscular Strength (Day 1)",moves:[
+      {name:"Dynamic Warmup",sets:"—",muscles:[["Full body","gray"]],yt:""},
+      {name:"Assisted Pull-ups",sets:"1xwarmup, 4x8",weight:"At least 75, push for 60!",muscles:[["Lats","teal"],["Biceps","teal"],["Upper back","teal"]],yt:"https://www.youtube.com/watch?v=OQtn9yngfAQ"},
+      {name:"Walking Lunges (with stick if needed)",sets:"1xwarmup, 3x8each",muscles:[["Quads","blue"],["Glutes","purple"],["Hamstrings","blue"]],yt:"https://www.youtube.com/watch?v=tQNktxPkSeE"},
+      {name:"Dumbbell Bench Press",sets:"1x warmup, 3x10",muscles:[["Chest","coral"],["Triceps","coral"],["Shoulders","pink"]],yt:"https://www.youtube.com/watch?v=ZaDlbm8E8Tg"},
+      {name:"Banded Monster Walk",sets:"3x10each",muscles:[["Glutes","purple"],["Hip abductors","purple"]],yt:"https://www.youtube.com/watch?v=MZ1HbVflLUI"},
+      {name:"Lying Leg Raises",sets:"3x12",muscles:[["Lower abs","amber"],["Hip flexors","amber"]],yt:"https://www.youtube.com/shorts/FijNSgahpz0"},
+      {name:"Back Extension Machine",sets:"3x12",muscles:[["Lower back","green"],["Glutes","purple"]],yt:""},
+      {name:"Single Leg Deficit Calf Raises",sets:"3x10each",muscles:[["Calves","blue"],["Soleus","blue"]],yt:"https://www.youtube.com/watch?v=eD1kh9WDNqs"},
+      {name:"Cooldown",sets:"—",muscles:[["Recovery","gray"]],yt:""}
+    ]},
+    {day:2,label:"Full Body Muscular Endurance (Day 2)",moves:[
+      {name:"Dynamic Warmup",sets:"—",muscles:[["Full body","gray"]],yt:""},
+      {name:"Plate Loaded Chest Press Machine",sets:"1xwarmup, 4x10",muscles:[["Chest","coral"],["Triceps","coral"],["Shoulders","pink"]],yt:""},
+      {name:"Bulgarian Split Squat (with stick to help)",sets:"1xwarmup, 3x8each",muscles:[["Quads","blue"],["Glutes","purple"],["Hamstrings","blue"]],yt:"https://www.youtube.com/watch?v=xVYExUDxCEM"},
+      {name:"Cable Row",sets:"1xwarmup, 3x10",muscles:[["Lats","teal"],["Rhomboids","teal"],["Biceps","teal"]],yt:""},
+      {name:"Deadbugs",sets:"3x8each",note:"Keep low back touching floor and core braced. Try with a medball if too easy!",muscles:[["Deep core","amber"],["Transverse abs","amber"]],yt:"https://www.youtube.com/watch?v=o4GKiEoYClI"},
+      {name:"Seated Calf Raise Machine",sets:"1xwarmup, 3x12",muscles:[["Calves","blue"],["Soleus","blue"]],yt:"https://www.youtube.com/watch?v=Xd7_WGLa2us"},
+      {name:"Palloff Hold Squats",sets:"3x8each side",muscles:[["Core","amber"],["Obliques","amber"]],yt:"https://www.youtube.com/watch?v=3LtfMucz24Y"},
+      {name:"Cooldown",sets:"—",muscles:[["Recovery","gray"]],yt:""}
+    ]},
+    {day:3,label:"Full Body Plyos & VO2 max Accessory (Day 3)",moves:[
+      {name:"Dynamic Warmup",sets:"—",muscles:[["Full body","gray"]],yt:""},
+      {name:"Skill Mill (or treadmill)",sets:"3x3:00",muscles:[["Cardio","red"],["Full body","gray"]],yt:""},
+      {name:"Side Plank",sets:"3x0:40-1:00 each side!",muscles:[["Core","amber"],["Obliques","amber"]],yt:"https://www.youtube.com/watch?v=_R389Jk0tIo"},
+      {name:"Banded Facepulls",sets:"3x10",muscles:[["Rear delts","teal"],["Upper back","teal"]],yt:"https://www.youtube.com/watch?v=2Hn4Ahkzk6E"},
+      {name:"Hip Thrust Machine",sets:"3x8",muscles:[["Glutes","purple"],["Hamstrings","blue"]],yt:"https://www.youtube.com/watch?v=ZwCSkYHGZzk"},
+      {name:"Pushups (knees)",sets:"3x8-12",muscles:[["Chest","coral"],["Triceps","coral"],["Shoulders","pink"]],yt:"https://www.youtube.com/watch?v=lFR1GWy1Dcs"},
+      {name:"Explosive Step-ups",sets:"3x8each",note:"Work on being as explosive as possible while maintaining proper form!",muscles:[["Quads","blue"],["Glutes","purple"],["Calves","blue"]],yt:"https://www.youtube.com/watch?v=vnP-ZKi0ZAM"},
+      {name:"Supinated Lat Pulldowns",sets:"3x10",muscles:[["Lats","teal"],["Biceps","teal"]],yt:"https://www.youtube.com/watch?v=Wg7Lm8xbctg"},
+      {name:"Cooldown",sets:"—",muscles:[["Recovery","gray"]],yt:""}
+    ]}
+  ]},
+  {week:3,label:"Week 3",days:[
+    {day:1,label:"Full Body Muscular Strength (Day 1)",moves:[
+      {name:"Dynamic Warmup",sets:"—",muscles:[["Full body","gray"]],yt:""},
+      {name:"Assisted Pull-ups",sets:"1xwarmup, 4x8",weight:"At least 75, push for 60!",muscles:[["Lats","teal"],["Biceps","teal"],["Upper back","teal"]],yt:"https://www.youtube.com/watch?v=OQtn9yngfAQ"},
+      {name:"Walking Lunges (with stick if needed)",sets:"1xwarmup, 3x8each",muscles:[["Quads","blue"],["Glutes","purple"],["Hamstrings","blue"]],yt:"https://www.youtube.com/watch?v=tQNktxPkSeE"},
+      {name:"Dumbbell Bench Press",sets:"1x warmup, 3x10",muscles:[["Chest","coral"],["Triceps","coral"],["Shoulders","pink"]],yt:"https://www.youtube.com/watch?v=ZaDlbm8E8Tg"},
+      {name:"Banded Monster Walk",sets:"3x10each",muscles:[["Glutes","purple"],["Hip abductors","purple"]],yt:"https://www.youtube.com/watch?v=MZ1HbVflLUI"},
+      {name:"Lying Leg Raises",sets:"3x12",muscles:[["Lower abs","amber"],["Hip flexors","amber"]],yt:"https://www.youtube.com/shorts/FijNSgahpz0"},
+      {name:"Back Extension Machine",sets:"3x12",muscles:[["Lower back","green"],["Glutes","purple"]],yt:""},
+      {name:"Single Leg Deficit Calf Raises",sets:"3x10each",muscles:[["Calves","blue"],["Soleus","blue"]],yt:"https://www.youtube.com/watch?v=eD1kh9WDNqs"},
+      {name:"Cooldown",sets:"—",muscles:[["Recovery","gray"]],yt:""}
+    ]},
+    {day:2,label:"Full Body Muscular Endurance (Day 2)",moves:[
+      {name:"Dynamic Warmup",sets:"—",muscles:[["Full body","gray"]],yt:""},
+      {name:"Plate Loaded Chest Press Machine",sets:"1xwarmup, 4x10",muscles:[["Chest","coral"],["Triceps","coral"],["Shoulders","pink"]],yt:""},
+      {name:"Bulgarian Split Squat (with stick to help)",sets:"1xwarmup, 3x8each",muscles:[["Quads","blue"],["Glutes","purple"],["Hamstrings","blue"]],yt:"https://www.youtube.com/watch?v=xVYExUDxCEM"},
+      {name:"Cable Row",sets:"1xwarmup, 3x10",muscles:[["Lats","teal"],["Rhomboids","teal"],["Biceps","teal"]],yt:""},
+      {name:"Deadbugs",sets:"3x8each",note:"Keep low back touching floor and core braced. Try with a medball if too easy!",muscles:[["Deep core","amber"],["Transverse abs","amber"]],yt:"https://www.youtube.com/watch?v=o4GKiEoYClI"},
+      {name:"Seated Calf Raise Machine",sets:"1xwarmup, 3x12",muscles:[["Calves","blue"],["Soleus","blue"]],yt:"https://www.youtube.com/watch?v=Xd7_WGLa2us"},
+      {name:"Palloff Hold Lunges",sets:"3x8each side",muscles:[["Core","amber"],["Obliques","amber"]],yt:"https://www.youtube.com/watch?v=jPRFafIM5PQ"},
+      {name:"Cooldown",sets:"—",muscles:[["Recovery","gray"]],yt:""}
+    ]},
+    {day:3,label:"Full Body Plyos & VO2 max Accessory (Day 3)",moves:[
+      {name:"Dynamic Warmup",sets:"—",muscles:[["Full body","gray"]],yt:""},
+      {name:"Skill Mill (or treadmill)",sets:"3x3:00",muscles:[["Cardio","red"],["Full body","gray"]],yt:""},
+      {name:"Side Plank",sets:"3x0:40-1:00 each side!",muscles:[["Core","amber"],["Obliques","amber"]],yt:"https://www.youtube.com/watch?v=_R389Jk0tIo"},
+      {name:"Banded Facepulls",sets:"3x10",muscles:[["Rear delts","teal"],["Upper back","teal"]],yt:"https://www.youtube.com/watch?v=2Hn4Ahkzk6E"},
+      {name:"Hip Thrust Machine",sets:"3x8",muscles:[["Glutes","purple"],["Hamstrings","blue"]],yt:"https://www.youtube.com/watch?v=ZwCSkYHGZzk"},
+      {name:"Pushups (knees)",sets:"3x8-12",muscles:[["Chest","coral"],["Triceps","coral"],["Shoulders","pink"]],yt:"https://www.youtube.com/watch?v=lFR1GWy1Dcs"},
+      {name:"Explosive Step-ups",sets:"3x8each",note:"Work on being as explosive as possible while maintaining proper form!",muscles:[["Quads","blue"],["Glutes","purple"],["Calves","blue"]],yt:"https://www.youtube.com/watch?v=vnP-ZKi0ZAM"},
+      {name:"Supinated Lat Pulldowns",sets:"3x10",muscles:[["Lats","teal"],["Biceps","teal"]],yt:"https://www.youtube.com/watch?v=Wg7Lm8xbctg"},
+      {name:"Cooldown",sets:"—",muscles:[["Recovery","gray"]],yt:""}
+    ]}
+  ]},
+  {week:4,label:"Week 4",days:[
+    {day:1,label:"Full Body Muscular Strength (Day 1)",moves:[
+      {name:"Dynamic Warmup",sets:"—",muscles:[["Full body","gray"]],yt:""},
+      {name:"Assisted Pull-ups",sets:"1xwarmup, 4x8",weight:"At least 75, push for 60!",muscles:[["Lats","teal"],["Biceps","teal"],["Upper back","teal"]],yt:"https://www.youtube.com/watch?v=OQtn9yngfAQ"},
+      {name:"Walking Lunges (with stick if needed)",sets:"1xwarmup, 3x8each",muscles:[["Quads","blue"],["Glutes","purple"],["Hamstrings","blue"]],yt:"https://www.youtube.com/watch?v=tQNktxPkSeE"},
+      {name:"Dumbbell Bench Press",sets:"1x warmup, 3x10",muscles:[["Chest","coral"],["Triceps","coral"],["Shoulders","pink"]],yt:"https://www.youtube.com/watch?v=ZaDlbm8E8Tg"},
+      {name:"Banded Monster Walk",sets:"3x10each",muscles:[["Glutes","purple"],["Hip abductors","purple"]],yt:"https://www.youtube.com/watch?v=MZ1HbVflLUI"},
+      {name:"Lying Leg Raises",sets:"3x12",muscles:[["Lower abs","amber"],["Hip flexors","amber"]],yt:"https://www.youtube.com/shorts/FijNSgahpz0"},
+      {name:"Back Extension Machine",sets:"3x12",muscles:[["Lower back","green"],["Glutes","purple"]],yt:""},
+      {name:"Single Leg Deficit Calf Raises",sets:"3x10each",muscles:[["Calves","blue"],["Soleus","blue"]],yt:"https://www.youtube.com/watch?v=eD1kh9WDNqs"},
+      {name:"Cooldown",sets:"—",muscles:[["Recovery","gray"]],yt:""}
+    ]},
+    {day:2,label:"Full Body Muscular Endurance (Day 2)",moves:[
+      {name:"Dynamic Warmup",sets:"—",muscles:[["Full body","gray"]],yt:""},
+      {name:"Plate Loaded Chest Press Machine",sets:"1xwarmup, 4x10",muscles:[["Chest","coral"],["Triceps","coral"],["Shoulders","pink"]],yt:""},
+      {name:"Bulgarian Split Squat (with stick to help)",sets:"1xwarmup, 3x8each",muscles:[["Quads","blue"],["Glutes","purple"],["Hamstrings","blue"]],yt:"https://www.youtube.com/watch?v=xVYExUDxCEM"},
+      {name:"Cable Row",sets:"1xwarmup, 3x10",muscles:[["Lats","teal"],["Rhomboids","teal"],["Biceps","teal"]],yt:""},
+      {name:"Deadbugs",sets:"3x8each",note:"Keep low back touching floor and core braced. Try with a medball if too easy!",muscles:[["Deep core","amber"],["Transverse abs","amber"]],yt:"https://www.youtube.com/watch?v=o4GKiEoYClI"},
+      {name:"Seated Calf Raise Machine",sets:"1xwarmup, 3x12",muscles:[["Calves","blue"],["Soleus","blue"]],yt:"https://www.youtube.com/watch?v=Xd7_WGLa2us"},
+      {name:"Palloff Hold Lunges",sets:"3x8each side",muscles:[["Core","amber"],["Obliques","amber"]],yt:"https://www.youtube.com/watch?v=jPRFafIM5PQ"},
+      {name:"Cooldown",sets:"—",muscles:[["Recovery","gray"]],yt:""}
+    ]},
+    {day:3,label:"Full Body Plyos & VO2 max Accessory (Day 3)",moves:[
+      {name:"Dynamic Warmup",sets:"—",muscles:[["Full body","gray"]],yt:""},
+      {name:"Skill Mill (or treadmill)",sets:"3x3:00",muscles:[["Cardio","red"],["Full body","gray"]],yt:""},
+      {name:"Side Plank",sets:"3x0:40-1:00 each side!",muscles:[["Core","amber"],["Obliques","amber"]],yt:"https://www.youtube.com/watch?v=_R389Jk0tIo"},
+      {name:"Banded Facepulls",sets:"3x10",muscles:[["Rear delts","teal"],["Upper back","teal"]],yt:"https://www.youtube.com/watch?v=2Hn4Ahkzk6E"},
+      {name:"Hip Thrust Machine",sets:"3x8",muscles:[["Glutes","purple"],["Hamstrings","blue"]],yt:"https://www.youtube.com/watch?v=ZwCSkYHGZzk"},
+      {name:"Pushups (knees)",sets:"3x8-12",muscles:[["Chest","coral"],["Triceps","coral"],["Shoulders","pink"]],yt:"https://www.youtube.com/watch?v=lFR1GWy1Dcs"},
+      {name:"Explosive Step-ups",sets:"3x8each",note:"Work on being as explosive as possible while maintaining proper form!",muscles:[["Quads","blue"],["Glutes","purple"],["Calves","blue"]],yt:"https://www.youtube.com/watch?v=vnP-ZKi0ZAM"},
+      {name:"Supinated Lat Pulldowns",sets:"3x10",muscles:[["Lats","teal"],["Biceps","teal"]],yt:"https://www.youtube.com/watch?v=Wg7Lm8xbctg"},
+      {name:"Cooldown",sets:"—",muscles:[["Recovery","gray"]],yt:""}
+    ]}
+  ]}
+];
+
 function renderGuideCard(m,idx,stepColor,hasWeight,key){
   const p=m.muscles.map(([n,c])=>gPill(n,c)).join('');
   const sc=GC[stepColor]||GC.gray;
@@ -1631,7 +1783,7 @@ function switchGuide(id){
   document.querySelectorAll('#page-guide .guide-panel').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('#page-guide .guide-tab').forEach(b=>b.classList.remove('active'));
   document.getElementById('guide-'+id).classList.add('active');
-  document.querySelectorAll('#page-guide .guide-tab')[{warmup:0,workout:1,cooldown:2}[id]].classList.add('active');
+  document.querySelectorAll('#page-guide .guide-tab')[{warmup:0,workout:1,workout3:2,cooldown:3}[id]].classList.add('active');
 }
 
 function renderGuidePage(){
@@ -1683,14 +1835,52 @@ function renderGuidePage(){
   wkH+='<div class="guide-banner" style="margin-top:10px">Weeks 7\u201312 not yet programmed by trainer</div>';
   document.getElementById('guide-workout').innerHTML=wkH;
 
+  // PT Workout3 section (3 days per week, 4 weeks)
+  let wo3TotalAll=0,wo3DoneAll=0;
+  let wo3H='<div class="guide-banner">3 days per week \u2014 Full Body Strength, Endurance & Plyos/VO2 max</div>';
+  guideWorkout3.forEach(wk=>{
+    let weekTotal=0,weekDone=0;
+    let weekBody='';
+    wk.days.forEach(day=>{
+      const dayPrefix='wo3-w'+wk.week+'d'+day.day+'-';
+      const dayTotal=day.moves.length;
+      const dayDone=getGuideDoneCount(dayPrefix);
+      weekTotal+=dayTotal; weekDone+=dayDone;
+      const dayAllDone=dayDone===dayTotal&&dayTotal>0;
+      let dayBody='';
+      day.moves.forEach((m,i)=>{dayBody+=renderGuideCard(m,null,null,true,dayPrefix+i);});
+      weekBody+=`<div class="g-week" id="gwo3-w${wk.week}d${day.day}" style="margin:6px 0">
+        <div class="g-week-hdr" onclick="document.getElementById('gwo3-w${wk.week}d${day.day}').classList.toggle('open')">
+          <span class="g-week-title">${day.label}</span>
+          <span class="g-week-progress${dayAllDone?' all-done':''}">${dayDone}/${dayTotal}</span>
+          <span class="g-chevron">\u25BE</span>
+        </div>
+        <div class="g-week-body">${dayBody}</div>
+      </div>`;
+    });
+    wo3TotalAll+=weekTotal; wo3DoneAll+=weekDone;
+    const weekAllDone=weekDone===weekTotal&&weekTotal>0;
+    wo3H+=`<div class="g-week" id="gwo3-w${wk.week}">
+      <div class="g-week-hdr" onclick="document.getElementById('gwo3-w${wk.week}').classList.toggle('open')">
+        <span class="g-week-title">${wk.label}</span>
+        <span class="g-week-progress${weekAllDone?' all-done':''}">${weekDone}/${weekTotal}</span>
+        <span class="g-chevron">\u25BE</span>
+      </div>
+      <div class="g-week-body">${weekBody}</div>
+    </div>`;
+  });
+  document.getElementById('guide-workout3').innerHTML=wo3H;
+
   // Update sub-tab labels with counts
   const tabs=document.querySelectorAll('#page-guide .guide-tab');
   const wuAllDone=wuDone===wuTotal&&wuTotal>0;
   const cdAllDone=cdDone===cdTotal&&cdTotal>0;
   const wkAllDoneAll=wkDoneAll===wkTotalAll&&wkTotalAll>0;
+  const wo3AllDone=wo3DoneAll===wo3TotalAll&&wo3TotalAll>0;
   tabs[0].innerHTML='Warm-up <span class="g-tab-count'+(wuAllDone?' all-done':'')+'\">('+wuDone+'/'+wuTotal+')</span>';
   tabs[1].innerHTML='PT Workouts <span class="g-tab-count'+(wkAllDoneAll?' all-done':'')+'\">('+wkDoneAll+'/'+wkTotalAll+')</span>';
-  tabs[2].innerHTML='Cooldown <span class="g-tab-count'+(cdAllDone?' all-done':'')+'\">('+cdDone+'/'+cdTotal+')</span>';
+  tabs[2].innerHTML='PT Workout3 <span class="g-tab-count'+(wo3AllDone?' all-done':'')+'\">('+wo3DoneAll+'/'+wo3TotalAll+')</span>';
+  tabs[3].innerHTML='Cooldown <span class="g-tab-count'+(cdAllDone?' all-done':'')+'\">('+cdDone+'/'+cdTotal+')</span>';
 }
 
 // ========================
