@@ -469,7 +469,7 @@
     .cal-dot { color: #fff; }
   }
 
-  /* === GUIDE PAGE === */
+  /* === GUIDE & ROUTINE shared styles === */
   #page-guide .guide-tabs {
     display: flex; gap: 6px; margin-bottom: 16px;
     overflow-x: auto; -webkit-overflow-scrolling: touch;
@@ -483,31 +483,31 @@
   #page-guide .guide-tab.active {
     background: var(--accent); color: #000; border-color: var(--accent);
   }
-  #page-guide .guide-banner {
+  #page-guide .guide-banner, #page-routine .guide-banner {
     background: var(--surface); border: 1px solid var(--border);
     border-radius: var(--radius); padding: 12px 14px; margin-bottom: 14px;
     font-size: 13px; color: var(--text2); line-height: 1.5;
   }
-  #page-guide .g-card {
+  #page-guide .g-card, #page-routine .g-card {
     background: var(--surface); border: 1px solid var(--border);
     border-radius: var(--radius); margin-bottom: 10px; padding: 14px 16px;
   }
-  #page-guide .g-name { font-size: 15px; font-weight: 600; }
-  #page-guide .g-rpe { font-size: 11px; color: var(--text2); margin-top: 1px; }
-  #page-guide .g-note { font-size: 12px; color: var(--text2); margin-top: 2px; }
-  #page-guide .g-meta { display: flex; gap: 20px; margin: 6px 0 8px; }
-  #page-guide .g-meta-item { font-size: 12px; color: var(--text2); }
-  #page-guide .g-meta-label {
+  #page-guide .g-name, #page-routine .g-name { font-size: 15px; font-weight: 600; }
+  #page-guide .g-rpe, #page-routine .g-rpe { font-size: 11px; color: var(--text2); margin-top: 1px; }
+  #page-guide .g-note, #page-routine .g-note { font-size: 12px; color: var(--text2); margin-top: 2px; }
+  #page-guide .g-meta, #page-routine .g-meta { display: flex; gap: 20px; margin: 6px 0 8px; }
+  #page-guide .g-meta-item, #page-routine .g-meta-item { font-size: 12px; color: var(--text2); }
+  #page-guide .g-meta-label, #page-routine .g-meta-label {
     color: var(--text2); font-size: 10px; display: block;
     margin-bottom: 1px; text-transform: uppercase; font-weight: 600;
     letter-spacing: 0.5px; opacity: 0.6;
   }
-  #page-guide .g-pills { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 10px; }
-  #page-guide .g-pill {
+  #page-guide .g-pills, #page-routine .g-pills { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 10px; }
+  #page-guide .g-pill, #page-routine .g-pill {
     display: inline-block; padding: 3px 9px; border-radius: 6px;
     font-size: 11px; font-weight: 600; white-space: nowrap;
   }
-  #page-guide .g-yt-btn {
+  #page-guide .g-yt-btn, #page-routine .g-yt-btn {
     display: inline-flex; align-items: center; gap: 6px;
     padding: 9px 16px; border-radius: 10px; font-size: 13px;
     font-weight: 700; text-decoration: none;
@@ -515,42 +515,42 @@
     border: 1px solid rgba(255,0,51,0.3);
     font-family: 'DM Sans', sans-serif;
   }
-  #page-guide .g-yt-btn:active { opacity: 0.7; }
-  #page-guide .g-yt-btn svg { width: 14px; height: 14px; fill: #ff4444; }
+  #page-guide .g-yt-btn:active, #page-routine .g-yt-btn:active { opacity: 0.7; }
+  #page-guide .g-yt-btn svg, #page-routine .g-yt-btn svg { width: 14px; height: 14px; fill: #ff4444; }
   #page-guide .g-step {
     display: inline-flex; align-items: center; justify-content: center;
     width: 22px; height: 22px; border-radius: 50%;
     font-size: 11px; font-weight: 700; flex-shrink: 0; margin-right: 8px;
     font-family: 'Space Mono', monospace;
   }
-  #page-guide .g-week {
+  #page-guide .g-week, #page-routine .g-week {
     background: var(--surface); border: 1px solid var(--border);
     border-radius: var(--radius); margin-bottom: 10px; overflow: hidden;
   }
-  #page-guide .g-week-hdr {
+  #page-guide .g-week-hdr, #page-routine .g-week-hdr {
     display: flex; align-items: center; justify-content: space-between;
     padding: 14px 16px; cursor: pointer; user-select: none;
   }
-  #page-guide .g-week-hdr:active { opacity: 0.7; }
-  #page-guide .g-week-title { font-size: 15px; font-weight: 600; flex: 1; }
-  #page-guide .g-done-badge {
+  #page-guide .g-week-hdr:active, #page-routine .g-week-hdr:active { opacity: 0.7; }
+  #page-guide .g-week-title, #page-routine .g-week-title { font-size: 15px; font-weight: 600; flex: 1; }
+  #page-guide .g-done-badge, #page-routine .g-done-badge {
     font-size: 11px; padding: 2px 8px; border-radius: 6px;
     background: rgba(68,255,136,0.15); color: var(--green);
     font-weight: 700; margin-left: 8px; flex-shrink: 0;
     font-family: 'Space Mono', monospace;
   }
-  #page-guide .g-chevron {
+  #page-guide .g-chevron, #page-routine .g-chevron {
     font-size: 18px; color: var(--text2); transition: transform 0.2s;
     margin-left: 10px; flex-shrink: 0;
   }
-  #page-guide .g-week.open .g-chevron { transform: rotate(180deg); }
-  #page-guide .g-week-body { display: none; padding: 0 8px 8px; }
-  #page-guide .g-week.open .g-week-body { display: block; }
-  #page-guide .g-inner {
+  #page-guide .g-week.open .g-chevron, #page-routine .g-week.open .g-chevron { transform: rotate(180deg); }
+  #page-guide .g-week-body, #page-routine .g-week-body { display: none; padding: 0 8px 8px; }
+  #page-guide .g-week.open .g-week-body, #page-routine .g-week.open .g-week-body { display: block; }
+  #page-guide .g-inner, #page-routine .g-inner {
     border: none; border-bottom: 1px solid var(--border);
     border-radius: 0; margin-bottom: 0; padding: 12px 4px;
   }
-  #page-guide .g-inner:last-child { border-bottom: none; }
+  #page-guide .g-inner:last-child, #page-routine .g-inner:last-child { border-bottom: none; }
   #page-guide .g-resource {
     background: var(--surface); border: 1px solid var(--border);
     border-radius: var(--radius); padding: 14px 16px; margin-bottom: 10px;
@@ -570,33 +570,33 @@
   }
   #page-guide .guide-panel { display: none; }
   #page-guide .guide-panel.active { display: block; }
-  #page-guide .g-week .g-week { background: var(--surface2); border-color: var(--border); }
-  #page-guide .g-week .g-week .g-week-title { font-size: 13px; }
+  #page-guide .g-week .g-week, #page-routine .g-week .g-week { background: var(--surface2); border-color: var(--border); }
+  #page-guide .g-week .g-week .g-week-title, #page-routine .g-week .g-week .g-week-title { font-size: 13px; }
 
-  /* Guide completion styles */
-  #page-guide .g-card.g-done { border-left: 3px solid var(--green); }
-  #page-guide .g-card.g-done .g-name { opacity: 0.6; }
-  #page-guide .g-check-btn {
+  /* Guide & Routine completion styles */
+  #page-guide .g-card.g-done, #page-routine .g-card.g-done { border-left: 3px solid var(--green); }
+  #page-guide .g-card.g-done .g-name, #page-routine .g-card.g-done .g-name { opacity: 0.6; }
+  #page-guide .g-check-btn, #page-routine .g-check-btn {
     width: 30px; height: 30px; border-radius: 50%; border: 2px solid var(--border);
     background: transparent; color: var(--text2); font-size: 16px;
     display: flex; align-items: center; justify-content: center;
     cursor: pointer; flex-shrink: 0; margin-left: auto; transition: all 0.2s;
   }
-  #page-guide .g-check-btn:active { opacity: 0.7; }
-  #page-guide .g-check-btn.checked {
+  #page-guide .g-check-btn:active, #page-routine .g-check-btn:active { opacity: 0.7; }
+  #page-guide .g-check-btn.checked, #page-routine .g-check-btn.checked {
     border-color: var(--green); background: rgba(68,255,136,0.15); color: var(--green);
   }
   #page-guide .guide-tab .g-tab-count {
     font-size: 11px; font-family: 'Space Mono', monospace; margin-left: 4px;
   }
   #page-guide .guide-tab .g-tab-count.all-done { color: var(--green); }
-  #page-guide .g-week-progress {
+  #page-guide .g-week-progress, #page-routine .g-week-progress {
     font-size: 11px; padding: 2px 8px; border-radius: 6px;
     background: rgba(200,255,0,0.1); color: var(--text2);
     font-weight: 700; margin-left: 8px; flex-shrink: 0;
     font-family: 'Space Mono', monospace;
   }
-  #page-guide .g-week-progress.all-done {
+  #page-guide .g-week-progress.all-done, #page-routine .g-week-progress.all-done {
     background: rgba(68,255,136,0.15); color: var(--green);
   }
 </style>
@@ -665,13 +665,17 @@
   <div class="guide-tabs">
     <button class="guide-tab active" onclick="switchGuide('warmup')">Warm-up</button>
     <button class="guide-tab" onclick="switchGuide('workout')">PT Workouts</button>
-    <button class="guide-tab" onclick="switchGuide('workout3')">PT Workout3</button>
     <button class="guide-tab" onclick="switchGuide('cooldown')">Cooldown</button>
   </div>
   <div class="guide-panel active" id="guide-warmup"></div>
   <div class="guide-panel" id="guide-workout"></div>
-  <div class="guide-panel" id="guide-workout3"></div>
   <div class="guide-panel" id="guide-cooldown"></div>
+  <div style="height: 30px"></div>
+</div>
+
+<!-- ROUTINE PAGE -->
+<div class="page" id="page-routine">
+  <div id="routineContent"></div>
   <div style="height: 30px"></div>
 </div>
 
@@ -681,13 +685,13 @@
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/><line x1="9" y1="7" x2="16" y2="7"/><line x1="9" y1="11" x2="14" y2="11"/></svg>
     Log
   </button>
+  <button class="tab" data-page="page-routine">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+    Routine
+  </button>
   <button class="tab" data-page="page-history">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 16l4-6 4 4 5-8"/></svg>
     History
-  </button>
-  <button class="tab" data-page="page-log">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-    OldLog
   </button>
   <button class="tab" data-page="page-plan">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
@@ -1517,6 +1521,7 @@ function switchToTab(pageId) {
   if (pageId === 'page-settings') renderSettingsPage();
   if (pageId === 'page-log') renderLogPage();
   if (pageId === 'page-guide') renderGuidePage();
+  if (pageId === 'page-routine') renderRoutinePage();
   window.scrollTo(0, 0);
 }
 
@@ -1774,8 +1779,12 @@ function renderGuideCard(m,idx,stepColor,hasWeight,key){
 let activeGuideTab = 'warmup';
 function onGuideCheck(key){
   toggleGuideDone(key);
-  renderGuidePage();
-  switchGuide(activeGuideTab);
+  if(key.startsWith('wo3-')){
+    renderRoutinePage();
+  } else {
+    renderGuidePage();
+    switchGuide(activeGuideTab);
+  }
 }
 
 function switchGuide(id){
@@ -1783,7 +1792,7 @@ function switchGuide(id){
   document.querySelectorAll('#page-guide .guide-panel').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('#page-guide .guide-tab').forEach(b=>b.classList.remove('active'));
   document.getElementById('guide-'+id).classList.add('active');
-  document.querySelectorAll('#page-guide .guide-tab')[{warmup:0,workout:1,workout3:2,cooldown:3}[id]].classList.add('active');
+  document.querySelectorAll('#page-guide .guide-tab')[{warmup:0,workout:1,cooldown:2}[id]].classList.add('active');
 }
 
 function renderGuidePage(){
@@ -1835,7 +1844,21 @@ function renderGuidePage(){
   wkH+='<div class="guide-banner" style="margin-top:10px">Weeks 7\u201312 not yet programmed by trainer</div>';
   document.getElementById('guide-workout').innerHTML=wkH;
 
-  // PT Workout3 section (3 days per week, 4 weeks)
+  // Update sub-tab labels with counts
+  const tabs=document.querySelectorAll('#page-guide .guide-tab');
+  const wuAllDone=wuDone===wuTotal&&wuTotal>0;
+  const cdAllDone=cdDone===cdTotal&&cdTotal>0;
+  const wkAllDoneAll=wkDoneAll===wkTotalAll&&wkTotalAll>0;
+  tabs[0].innerHTML='Warm-up <span class="g-tab-count'+(wuAllDone?' all-done':'')+'\">('+wuDone+'/'+wuTotal+')</span>';
+  tabs[1].innerHTML='PT Workouts <span class="g-tab-count'+(wkAllDoneAll?' all-done':'')+'\">('+wkDoneAll+'/'+wkTotalAll+')</span>';
+  tabs[2].innerHTML='Cooldown <span class="g-tab-count'+(cdAllDone?' all-done':'')+'\">('+cdDone+'/'+cdTotal+')</span>';
+}
+
+function renderRoutinePage(){
+  // Remember which weeks/days are open before re-render
+  const openIds=new Set();
+  document.querySelectorAll('#page-routine .g-week.open').forEach(el=>openIds.add(el.id));
+
   let wo3TotalAll=0,wo3DoneAll=0;
   let wo3H='<div class="guide-banner">3 days per week \u2014 Full Body Strength, Endurance & Plyos/VO2 max</div>';
   guideWorkout3.forEach(wk=>{
@@ -1843,14 +1866,16 @@ function renderGuidePage(){
     let weekBody='';
     wk.days.forEach(day=>{
       const dayPrefix='wo3-w'+wk.week+'d'+day.day+'-';
+      const dayId='gwo3-w'+wk.week+'d'+day.day;
       const dayTotal=day.moves.length;
       const dayDone=getGuideDoneCount(dayPrefix);
       weekTotal+=dayTotal; weekDone+=dayDone;
       const dayAllDone=dayDone===dayTotal&&dayTotal>0;
+      const dayOpen=openIds.has(dayId);
       let dayBody='';
       day.moves.forEach((m,i)=>{dayBody+=renderGuideCard(m,null,null,true,dayPrefix+i);});
-      weekBody+=`<div class="g-week" id="gwo3-w${wk.week}d${day.day}" style="margin:6px 0">
-        <div class="g-week-hdr" onclick="document.getElementById('gwo3-w${wk.week}d${day.day}').classList.toggle('open')">
+      weekBody+=`<div class="g-week${dayOpen?' open':''}" id="${dayId}" style="margin:6px 0">
+        <div class="g-week-hdr" onclick="document.getElementById('${dayId}').classList.toggle('open')">
           <span class="g-week-title">${day.label}</span>
           <span class="g-week-progress${dayAllDone?' all-done':''}">${dayDone}/${dayTotal}</span>
           <span class="g-chevron">\u25BE</span>
@@ -1860,8 +1885,10 @@ function renderGuidePage(){
     });
     wo3TotalAll+=weekTotal; wo3DoneAll+=weekDone;
     const weekAllDone=weekDone===weekTotal&&weekTotal>0;
-    wo3H+=`<div class="g-week" id="gwo3-w${wk.week}">
-      <div class="g-week-hdr" onclick="document.getElementById('gwo3-w${wk.week}').classList.toggle('open')">
+    const weekId='gwo3-w'+wk.week;
+    const weekOpen=openIds.has(weekId);
+    wo3H+=`<div class="g-week${weekOpen?' open':''}" id="${weekId}">
+      <div class="g-week-hdr" onclick="document.getElementById('${weekId}').classList.toggle('open')">
         <span class="g-week-title">${wk.label}</span>
         <span class="g-week-progress${weekAllDone?' all-done':''}">${weekDone}/${weekTotal}</span>
         <span class="g-chevron">\u25BE</span>
@@ -1869,18 +1896,7 @@ function renderGuidePage(){
       <div class="g-week-body">${weekBody}</div>
     </div>`;
   });
-  document.getElementById('guide-workout3').innerHTML=wo3H;
-
-  // Update sub-tab labels with counts
-  const tabs=document.querySelectorAll('#page-guide .guide-tab');
-  const wuAllDone=wuDone===wuTotal&&wuTotal>0;
-  const cdAllDone=cdDone===cdTotal&&cdTotal>0;
-  const wkAllDoneAll=wkDoneAll===wkTotalAll&&wkTotalAll>0;
-  const wo3AllDone=wo3DoneAll===wo3TotalAll&&wo3TotalAll>0;
-  tabs[0].innerHTML='Warm-up <span class="g-tab-count'+(wuAllDone?' all-done':'')+'\">('+wuDone+'/'+wuTotal+')</span>';
-  tabs[1].innerHTML='PT Workouts <span class="g-tab-count'+(wkAllDoneAll?' all-done':'')+'\">('+wkDoneAll+'/'+wkTotalAll+')</span>';
-  tabs[2].innerHTML='PT Workout3 <span class="g-tab-count'+(wo3AllDone?' all-done':'')+'\">('+wo3DoneAll+'/'+wo3TotalAll+')</span>';
-  tabs[3].innerHTML='Cooldown <span class="g-tab-count'+(cdAllDone?' all-done':'')+'\">('+cdDone+'/'+cdTotal+')</span>';
+  document.getElementById('routineContent').innerHTML=wo3H;
 }
 
 // ========================
