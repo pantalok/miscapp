@@ -303,6 +303,31 @@
   .canvaslink-title { font-weight: 500; font-size: 13px; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 2px; }
   .canvaslink-meta { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--ink-faint); letter-spacing: 0.02em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .canvaslink-arrow { color: var(--ink-faint); font-size: 12px; flex-shrink: 0; }
+
+  /* Tour overlay */
+  #tour-overlay { position: fixed; inset: 0; z-index: 10001; display: none; }
+  #tour-overlay.visible { display: block; }
+  #tour-backdrop { position: fixed; inset: 0; background: rgba(27,26,23,0.55); }
+  #tour-highlight {
+    position: fixed; border-radius: 10px; z-index: 10002;
+    box-shadow: 0 0 0 9999px rgba(27,26,23,0.55);
+    transition: all 0.3s ease;
+    pointer-events: none;
+  }
+  #tour-tooltip {
+    position: fixed; z-index: 10003; background: var(--surface);
+    border-radius: 12px; box-shadow: var(--shadow-lg); padding: 20px 24px;
+    max-width: 340px; width: max-content; min-width: 260px;
+    transition: all 0.3s ease;
+  }
+  .tour-title { font-family: 'Fraunces', serif; font-style: italic;
+    font-weight: 400; font-size: 20px; margin-bottom: 8px; }
+  .tour-desc { color: var(--ink-soft); font-size: 13px; line-height: 1.55;
+    margin-bottom: 16px; }
+  .tour-footer { display: flex; align-items: center; justify-content: space-between; }
+  .tour-steps { font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    color: var(--ink-faint); }
+  .tour-actions { display: flex; gap: 6px; }
 </style>
 </head>
 <body>
@@ -517,6 +542,11 @@
             <span class="help-keys"><kbd id="mod-undo">Ctrl</kbd>+<kbd>Z</kbd></span>
           </div>
         </div>
+        <div class="help-section">
+          <div class="help-item">
+            <span class="help-label" style="cursor:pointer;color:var(--accent);" onclick="startTour()">Take a tour</span>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -601,6 +631,23 @@
     <div class="modal-actions" id="modal-actions">
       <button class="btn" id="modal-cancel">Cancel</button>
       <button class="btn primary" id="modal-confirm">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<div id="tour-overlay">
+  <div id="tour-backdrop"></div>
+  <div id="tour-highlight"></div>
+  <div id="tour-tooltip">
+    <div class="tour-title" id="tour-title"></div>
+    <div class="tour-desc" id="tour-desc"></div>
+    <div class="tour-footer">
+      <span class="tour-steps" id="tour-steps"></span>
+      <div class="tour-actions">
+        <button class="btn" id="tour-skip">Skip</button>
+        <button class="btn" id="tour-back" style="display:none">Back</button>
+        <button class="btn primary" id="tour-next">Next</button>
+      </div>
     </div>
   </div>
 </div>
@@ -802,6 +849,7 @@ async function bootCanvas(selectedStorage) {
   // Background: index current workspace and reindex others
   indexCurrentWorkspace().catch(() => {});
   reindexAll().catch(() => {});
+  if (!localStorage.getItem('akash_tour_done')) setTimeout(() => startTour(), 400);
 }
 
 /* ── Phase 1: Canvas Switcher ── */
@@ -3395,6 +3443,149 @@ document.addEventListener('click', (e) => {
   const panel = $('canvas-switcher');
   if (panel.classList.contains('visible') && !panel.contains(e.target) && e.target !== $('brand-btn') && !$('brand-btn').contains(e.target)) {
     panel.classList.remove('visible');
+  }
+});
+
+/* ── Spotlight Tour ── */
+const tourSteps = [
+  { target: null, title: 'Welcome to Ak@sh', desc: 'Your local canvas workspace. Let\u2019s walk through the key features.', position: 'center' },
+  { target: '#brand-btn', title: 'Workspace Switcher', desc: 'Click here or press Cmd/Ctrl+K to switch between workspaces, open folders, or create new canvases.', position: 'bottom' },
+  { target: '#search', title: 'Search', desc: 'Search notes, tags, and files. Toggle the globe icon to search across all your workspaces at once.', position: 'bottom' },
+  { target: '#sidebar-btn', title: 'Outline', desc: 'Press \\ to open the sidebar. Browse items by tags or timeline.', position: 'bottom' },
+  { target: '#topbar .panel:last-child', title: 'Toolbar', desc: 'Quick access to add notes, images, files, and frames. You can also tidy or clear the canvas from here.', position: 'bottom' },
+  { target: '#add-text-btn', title: 'Add a Note', desc: 'Click here, double-click the canvas, or press N to create a note. You can also right-click the canvas for a quick menu.', position: 'bottom' },
+  { target: '#add-frame-btn', title: 'Create a Frame', desc: 'Group items visually. Click here or hold F and move the mouse to draw a frame directly on the canvas.', position: 'bottom' },
+  { target: null, title: 'Working with Items', desc: 'Drag any item to move it. Paste images from your clipboard with Cmd/Ctrl+V. Drag the corner handles on a selected item to resize it.', position: 'center' },
+  { target: null, title: 'Select & Duplicate', desc: 'Shift+Click or hold Space and move to select multiple items. Press Cmd/Ctrl+D to duplicate your selection.', position: 'center' },
+  { target: null, title: 'Lock & Unlock', desc: 'Right-click any item to lock or unlock it. Locked items stay fixed on the canvas and can\u2019t be accidentally moved or resized.', position: 'center' },
+  { target: '#nav-back-btn', title: 'Navigate Back & Forward', desc: 'Jump between previously visited items and workspaces with Alt+Left/Right.', position: 'bottom' },
+  { target: '#bookmarks-btn', title: 'Bookmarks', desc: 'Pin important items for quick access.', position: 'bottom' },
+  { target: '#zoom-indicator', title: 'Zoom', desc: 'Scroll to zoom, or use these controls. Drag on empty canvas to pan.', position: 'top' },
+  { target: '#help-box', title: 'Help & Shortcuts', desc: 'Full shortcut reference lives here. Click \u201CTake a tour\u201D anytime to replay this walkthrough.', position: 'top' },
+  { target: null, title: 'You\u2019re all set!', desc: 'Start by right-clicking the canvas to create your first note.', position: 'center' }
+];
+
+let tourCurrentStep = 0;
+const tourOverlay = document.getElementById('tour-overlay');
+const tourBackdrop = document.getElementById('tour-backdrop');
+const tourHighlight = document.getElementById('tour-highlight');
+const tourTooltip = document.getElementById('tour-tooltip');
+const tourTitleEl = document.getElementById('tour-title');
+const tourDescEl = document.getElementById('tour-desc');
+const tourStepsEl = document.getElementById('tour-steps');
+const tourNextBtn = document.getElementById('tour-next');
+const tourBackBtn = document.getElementById('tour-back');
+const tourSkipBtn = document.getElementById('tour-skip');
+
+function startTour() {
+  localStorage.removeItem('akash_tour_done');
+  tourCurrentStep = 0;
+  tourOverlay.classList.add('visible');
+  showTourStep(0);
+}
+
+function endTour() {
+  tourOverlay.classList.remove('visible');
+  localStorage.setItem('akash_tour_done', '1');
+}
+
+function showTourStep(idx) {
+  tourCurrentStep = idx;
+  const step = tourSteps[idx];
+
+  tourTitleEl.textContent = step.title;
+  tourDescEl.textContent = step.desc;
+  tourStepsEl.textContent = (idx + 1) + ' / ' + tourSteps.length;
+
+  tourBackBtn.style.display = idx > 0 ? '' : 'none';
+  tourNextBtn.textContent = idx === tourSteps.length - 1 ? 'Done' : 'Next';
+
+  if (!step.target) {
+    // Centered step — no highlight
+    tourHighlight.style.display = 'none';
+    tourBackdrop.style.display = 'block';
+    const tw = Math.min(340, window.innerWidth - 32);
+    tourTooltip.style.left = (window.innerWidth / 2 - tw / 2) + 'px';
+    tourTooltip.style.top = (window.innerHeight / 2 - 100) + 'px';
+    tourTooltip.style.width = tw + 'px';
+    return;
+  }
+
+  const el = document.querySelector(step.target);
+  if (!el) { nextTourStep(); return; }
+
+  const rect = el.getBoundingClientRect();
+  const pad = 8;
+
+  tourHighlight.style.display = 'block';
+  tourBackdrop.style.display = 'none';
+  tourHighlight.style.left = (rect.left - pad) + 'px';
+  tourHighlight.style.top = (rect.top - pad) + 'px';
+  tourHighlight.style.width = (rect.width + pad * 2) + 'px';
+  tourHighlight.style.height = (rect.height + pad * 2) + 'px';
+
+  tourTooltip.style.width = '';
+  positionTooltip(rect, step.position);
+}
+
+function positionTooltip(rect, preferred) {
+  const gap = 14;
+  const tw = tourTooltip.offsetWidth || 300;
+  const th = tourTooltip.offsetHeight || 160;
+  let top, left;
+
+  if (preferred === 'bottom') {
+    top = rect.bottom + gap;
+    left = rect.left + rect.width / 2 - tw / 2;
+  } else if (preferred === 'top') {
+    top = rect.top - gap - th;
+    left = rect.left + rect.width / 2 - tw / 2;
+  } else if (preferred === 'right') {
+    top = rect.top + rect.height / 2 - th / 2;
+    left = rect.right + gap;
+  } else if (preferred === 'left') {
+    top = rect.top + rect.height / 2 - th / 2;
+    left = rect.left - gap - tw;
+  } else {
+    top = rect.bottom + gap;
+    left = rect.left + rect.width / 2 - tw / 2;
+  }
+
+  // Keep on screen
+  if (left < 12) left = 12;
+  if (left + tw > window.innerWidth - 12) left = window.innerWidth - 12 - tw;
+  if (top < 12) top = 12;
+  if (top + th > window.innerHeight - 12) {
+    // flip to top if we overflowed bottom
+    top = rect.top - gap - th;
+    if (top < 12) top = 12;
+  }
+
+  tourTooltip.style.top = top + 'px';
+  tourTooltip.style.left = left + 'px';
+}
+
+function nextTourStep() {
+  if (tourCurrentStep < tourSteps.length - 1) {
+    showTourStep(tourCurrentStep + 1);
+  } else {
+    endTour();
+  }
+}
+
+function prevTourStep() {
+  if (tourCurrentStep > 0) {
+    showTourStep(tourCurrentStep - 1);
+  }
+}
+
+tourNextBtn.addEventListener('click', nextTourStep);
+tourBackBtn.addEventListener('click', prevTourStep);
+tourSkipBtn.addEventListener('click', endTour);
+tourBackdrop.addEventListener('click', endTour);
+window.addEventListener('resize', () => {
+  if (tourOverlay.classList.contains('visible')) {
+    showTourStep(tourCurrentStep);
   }
 });
 
