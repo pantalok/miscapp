@@ -177,6 +177,11 @@
   .sb-empty { padding: 24px 20px; text-align: center; color: var(--ink-faint); font-size: 13px; line-height: 1.5; }
 
   #lasso { position: fixed; display: none; border: 1px solid var(--accent); background: var(--accent-soft); pointer-events: none; z-index: 10000; }
+  #scale-overlay { position: fixed; display: none; border: 2px dashed var(--accent); pointer-events: none; z-index: 9999; box-sizing: border-box; }
+  #scale-overlay.active { display: block; }
+  .scale-handle { position: absolute; width: 12px; height: 12px; background: var(--surface); border: 2px solid var(--accent); border-radius: 50%; pointer-events: auto; z-index: 10000; }
+  .scale-handle.nw { top: -7px; left: -7px; cursor: nwse-resize; } .scale-handle.ne { top: -7px; right: -7px; cursor: nesw-resize; }
+  .scale-handle.sw { bottom: -7px; left: -7px; cursor: nesw-resize; } .scale-handle.se { bottom: -7px; right: -7px; cursor: nwse-resize; }
   
   /* Topbar */
   #topbar { position: fixed; top: 18px; left: 18px; right: 18px; display: flex; align-items: center; gap: 12px; z-index: 100; pointer-events: none; flex-wrap: wrap; }
@@ -355,6 +360,12 @@
   <div id="viewport">
     <div id="world"></div>
     <div id="lasso"></div>
+    <div id="scale-overlay">
+      <div class="scale-handle nw" data-corner="nw"></div>
+      <div class="scale-handle ne" data-corner="ne"></div>
+      <div class="scale-handle sw" data-corner="sw"></div>
+      <div class="scale-handle se" data-corner="se"></div>
+    </div>
   </div>
 
   <div class="empty-state" id="empty-state">
@@ -619,6 +630,7 @@
     <button id="arrange-grid-btn" style="display:none">Arrange Grid</button>
     <button id="arrange-row-btn" style="display:none">Arrange Row</button>
     <button id="zoom-selection-btn" style="display:none">Zoom to Selection</button>
+    <button id="scale-selection-btn" style="display:none">Scale Selection</button>
   </div>
   <div id="tidy-menu">
     <button id="tidy-remove-empty">Remove empty notes</button>
@@ -1507,6 +1519,7 @@ function renderFrameColorSwatches(item) {
 }
 
 function selectItem(id, multi = false) {
+  if (scaleMode) exitScaleMode();
   if (!id) state.selectedIds.clear();
   else if (multi) { if (state.selectedIds.has(id)) state.selectedIds.delete(id); else state.selectedIds.add(id); }
   else { state.selectedIds.clear(); state.selectedIds.add(id); }
@@ -1598,6 +1611,115 @@ function zoomToSelection(items) {
   state.pan.x = vw / 2 - centerX * z;
   state.pan.y = vh / 2 - centerY * z;
   applyTransform();
+}
+
+let scaleMode = null;
+
+function positionScaleOverlay(items) {
+  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+  items.forEach(i => {
+    minX = Math.min(minX, i.x);
+    minY = Math.min(minY, i.y);
+    maxX = Math.max(maxX, i.x + (i.width || 200));
+    maxY = Math.max(maxY, i.y + (i.height || 100));
+  });
+  const overlay = $('scale-overlay');
+  const sl = minX * state.zoom + state.pan.x;
+  const st = minY * state.zoom + state.pan.y;
+  const sw = (maxX - minX) * state.zoom;
+  const sh = (maxY - minY) * state.zoom;
+  overlay.style.left = sl + 'px';
+  overlay.style.top = st + 'px';
+  overlay.style.width = sw + 'px';
+  overlay.style.height = sh + 'px';
+}
+
+function enterScaleMode(items) {
+  const movable = items.filter(i => !i.locked && !isItemInLockedFrame(i.id));
+  if (movable.length < 2) return;
+  pushUndo();
+  const originals = movable.map(i => ({ id: i.id, x: i.x, y: i.y, width: i.width || 200, height: i.height || 100 }));
+  // Bounding box in world coords
+  let bMinX = Infinity, bMinY = Infinity, bMaxX = -Infinity, bMaxY = -Infinity;
+  originals.forEach(o => {
+    bMinX = Math.min(bMinX, o.x); bMinY = Math.min(bMinY, o.y);
+    bMaxX = Math.max(bMaxX, o.x + o.width); bMaxY = Math.max(bMaxY, o.y + o.height);
+  });
+  const bboxW = bMaxX - bMinX;
+  const bboxH = bMaxY - bMinY;
+  const centerX = (bMinX + bMaxX) / 2;
+  const centerY = (bMinY + bMaxY) / 2;
+
+  const overlay = $('scale-overlay');
+  positionScaleOverlay(movable);
+  overlay.classList.add('active');
+
+  const onHandleDown = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const startMX = e.clientX;
+    const startMY = e.clientY;
+    // Anchor is the opposite corner in screen coords
+    const corner = e.target.dataset.corner;
+    const anchorWX = (corner.includes('e') ? bMinX : bMaxX);
+    const anchorWY = (corner.includes('s') ? bMinY : bMaxY);
+    const cornerWX = (corner.includes('e') ? bMaxX : bMinX);
+    const cornerWY = (corner.includes('s') ? bMaxY : bMinY);
+    const startDistX = (cornerWX - anchorWX) * state.zoom;
+    const startDistY = (cornerWY - anchorWY) * state.zoom;
+    const startDist = Math.sqrt(startDistX * startDistX + startDistY * startDistY);
+
+    const onMove = (ev) => {
+      const dx = ev.clientX - startMX;
+      const dy = ev.clientY - startMY;
+      const newDistX = startDistX + dx;
+      const newDistY = startDistY + dy;
+      const newDist = Math.sqrt(newDistX * newDistX + newDistY * newDistY);
+      let scale = newDist / startDist;
+      scale = Math.max(0.1, Math.min(5, scale));
+      const newBboxW = bboxW * scale;
+      const newBboxH = bboxH * scale;
+      // Anchor stays fixed in world coords
+      const newMinX = corner.includes('e') ? anchorWX : anchorWX - newBboxW;
+      const newMinY = corner.includes('s') ? anchorWY : anchorWY - newBboxH;
+      movable.forEach((item, idx) => {
+        const o = originals[idx];
+        const relX = (o.x - bMinX) / bboxW;
+        const relY = (o.y - bMinY) / bboxH;
+        const relW = o.width / bboxW;
+        const relH = o.height / bboxH;
+        item.x = newMinX + relX * newBboxW;
+        item.y = newMinY + relY * newBboxH;
+        item.width = relW * newBboxW;
+        item.height = relH * newBboxH;
+        item.modifiedAt = Date.now();
+      });
+      positionScaleOverlay(movable);
+      renderAll();
+    };
+    const onUp = () => {
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('mouseup', onUp);
+      scheduleSave();
+    };
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onUp);
+  };
+
+  const handles = overlay.querySelectorAll('.scale-handle');
+  handles.forEach(h => h.addEventListener('mousedown', onHandleDown));
+
+  scaleMode = {
+    cleanup: () => {
+      overlay.classList.remove('active');
+      handles.forEach(h => h.removeEventListener('mousedown', onHandleDown));
+      scaleMode = null;
+    }
+  };
+}
+
+function exitScaleMode() {
+  if (scaleMode) scaleMode.cleanup();
 }
 
 function showItemContextMenu(x, y, item) {
@@ -1849,6 +1971,19 @@ function showItemContextMenu(x, y, item) {
     };
   } else {
     zoomSelBtn.style.display = 'none';
+  }
+
+  // Scale Selection button (2+ movable items)
+  const scaleSelBtn = $('scale-selection-btn');
+  if (showArrange) {
+    scaleSelBtn.textContent = 'Scale Selection (' + movableItems.length + ')';
+    scaleSelBtn.style.display = '';
+    scaleSelBtn.onclick = () => {
+      menu.classList.remove('visible');
+      enterScaleMode(targetItems);
+    };
+  } else {
+    scaleSelBtn.style.display = 'none';
   }
 
   menu.style.left = x + 'px';
@@ -2535,6 +2670,10 @@ function endFrameDraw() {
 }
 
 window.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && scaleMode) {
+    exitScaleMode();
+    return;
+  }
   // Cmd/Ctrl+K: Canvas Switcher
   if ((e.key === 'k' || e.key === 'K') && (e.metaKey || e.ctrlKey) && !e.shiftKey) {
     e.preventDefault();
