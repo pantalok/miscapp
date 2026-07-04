@@ -357,6 +357,28 @@
     font-family: 'DM Sans', sans-serif;
   }
   .tpl-name-input:focus { outline: none; border-color: var(--accent); }
+  .tpl-search {
+    width: 100%; padding: 10px 12px; margin-bottom: 8px;
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 8px; color: var(--text); font-size: 14px;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .tpl-search:focus { outline: none; border-color: var(--accent); }
+  .tpl-picker-meta {
+    font-size: 11px; color: var(--text2); font-family: 'Space Mono', monospace;
+    margin: 2px 2px 8px; display: flex; justify-content: space-between;
+  }
+  .tpl-picker { max-height: 55vh; overflow-y: auto; padding-right: 2px; }
+  .tpl-group-hdr {
+    font-family: 'Space Mono', monospace; font-size: 10px; color: var(--accent-dim);
+    text-transform: uppercase; letter-spacing: 1px; margin: 12px 2px 6px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .tpl-group-hdr:first-child { margin-top: 2px; }
+  .tpl-group-hdr span {
+    background: var(--surface2); color: var(--text2); border-radius: 10px;
+    padding: 1px 7px; font-size: 9px;
+  }
   .tpl-exercise-row {
     display: flex; align-items: center; gap: 10px;
     padding: 10px 12px; margin-bottom: 4px;
@@ -735,6 +757,68 @@ function loadExercises() {
 }
 function saveExercises(ex) { localStorage.setItem('gymlog_exercises', JSON.stringify(ex)); }
 
+// ---- Unified exercise pool: core exercises + every routine / warm-up / PT move ----
+// Lets templates select from ALL exercises (Week 1-4, 6-week routine, Warm-up, Cooldown),
+// and lets the Log page render + log those moves when a template is scheduled.
+// Organized as: Warm-up first, muscle-group sections in the middle, Cool-down last.
+const POOL_GROUPS = ['Warm-up', 'Legs', 'Chest', 'Back', 'Shoulders', 'Arms', 'Core', 'Cardio / Full Body', 'Cool-down'];
+const MUSCLE_CAT = {
+  'chest': 'Chest', 'upper chest': 'Chest',
+  'back': 'Back', 'upper back': 'Back', 'lower back': 'Back', 'mid-back': 'Back', 'lats': 'Back',
+  'rhomboids': 'Back', 'rear delts': 'Back', 'traps': 'Back', 'upper traps': 'Back',
+  'erectors': 'Back', 'posterior chain': 'Back',
+  'shoulders': 'Shoulders', 'front delts': 'Shoulders', 'rotator cuff': 'Shoulders',
+  'biceps': 'Arms', 'triceps': 'Arms',
+  'quads': 'Legs', 'glutes': 'Legs', 'hamstrings': 'Legs', 'calves': 'Legs', 'soleus': 'Legs',
+  'hip abductors': 'Legs', 'hips': 'Legs',
+  'core': 'Core', 'abs': 'Core', 'obliques': 'Core', 'lower abs': 'Core', 'deep core': 'Core',
+  'transverse abs': 'Core', 'hip flexors': 'Core', 'stability': 'Core',
+  'cardio': 'Cardio / Full Body', 'full body': 'Cardio / Full Body', 'grip': 'Cardio / Full Body'
+};
+function poolCategory(name, muscle, origin) {
+  const n = (name || '').toLowerCase(), m = (muscle || '').toLowerCase();
+  if (origin === 'warmup' || n.includes('warmup') || n.includes('warm up') || n.includes('dynamic warm')) return 'Warm-up';
+  if (origin === 'cooldown' || m === 'flexibility' || m === 'recovery' ||
+      n.includes('cooldown') || n.includes('cool down') || n.includes('stretch') || n.includes('yoga')) return 'Cool-down';
+  return MUSCLE_CAT[m] || 'Cardio / Full Body';
+}
+function poolSlug(name) { return 'g_' + name.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, ''); }
+function poolDedupKey(name) { return name.toLowerCase().replace(/\([^)]*\)/g, '').replace(/[^a-z0-9]/g, ''); }
+function poolWeightNum(w) { const m = String(w == null ? '' : w).match(/[\d.]+/); return m ? parseFloat(m[0]) : 0; }
+function poolRepsNum(sets) { const m = String(sets == null ? '' : sets).match(/x\s*(\d+)/i); return m ? parseInt(m[1]) : 10; }
+
+function getExercisePool() {
+  const core = loadExercises().map(e => Object.assign({}, e, {
+    group: poolCategory(e.name, e.muscle, 'core'), source: 'core'
+  }));
+  const seen = new Set(core.map(e => poolDedupKey(e.name)));
+  const pool = core.slice();
+  function addMove(mv, origin) {
+    if (!mv || !mv.name) return;
+    if (mv.name === 'Dynamic Warmup' || mv.name === 'Cooldown') return; // section placeholders
+    const key = poolDedupKey(mv.name);
+    if (seen.has(key)) return;
+    seen.add(key);
+    const muscle = (mv.muscles && mv.muscles[0]) ? mv.muscles[0][0] : '';
+    pool.push({
+      id: poolSlug(mv.name),
+      name: mv.name,
+      muscle: muscle,
+      videoUrl: mv.yt || '',
+      defaultWeight: poolWeightNum(mv.weight),
+      defaultReps: poolRepsNum(mv.sets),
+      instructions: mv.note || '',
+      group: poolCategory(mv.name, muscle, origin), source: 'routine'
+    });
+  }
+  guideWorkout3.forEach(w => w.days.forEach(d => d.moves.forEach(m => addMove(m, 'main'))));
+  guideWeeks.forEach(w => w.moves.forEach(m => addMove(m, 'main')));
+  guideWarmup.forEach(m => addMove(m, 'warmup'));
+  guideCooldown.forEach(m => addMove(m, 'cooldown'));
+  return pool;
+}
+function poolExerciseById(id) { return getExercisePool().find(e => e.id === id) || null; }
+
 function loadHistory() {
   const d = localStorage.getItem('gymlog_history');
   return d ? JSON.parse(d) : [];
@@ -881,7 +965,9 @@ function renderLogPage() {
   if (tplId) {
     const tpl = loadTemplates().find(t => t.id === tplId);
     if (tpl) {
-      exercises = exercises.filter(ex => tpl.exerciseIds.includes(ex.id));
+      // Resolve from the full pool (core + routine/warm-up/PT) in the template's own order.
+      const pool = getExercisePool();
+      exercises = tpl.exerciseIds.map(id => pool.find(e => e.id === id)).filter(Boolean);
       templateLabel = `<div class="today-template" onclick="switchToTab('page-plan')">
         <span class="dot" style="background:${getTplColor(tplId)}"></span>
         ${escHtml(tpl.name)}
@@ -1002,9 +1088,11 @@ function logSet(exId) {
   const weight = parseFloat(document.getElementById('w-' + exId).value) || 0;
   const reps = parseInt(document.getElementById('r-' + exId).value) || 0;
   const now = new Date();
+  const poolEx = poolExerciseById(exId);
   const entry = {
     id: 'set_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
     exerciseId: exId,
+    guideName: poolEx ? poolEx.name : '',
     weight, reps,
     date: now.toLocaleDateString('en-CA'),
     time: now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
@@ -1305,15 +1393,51 @@ function renderPlanPage() {
   renderCalendar();
 }
 
+let tplPickerSearch = '';
+
+function renderPickerRows(tpl) {
+  const pool = getExercisePool();
+  const q = tplPickerSearch.trim().toLowerCase();
+  const filtered = pool.filter(ex =>
+    !q || ex.name.toLowerCase().includes(q) || (ex.muscle || '').toLowerCase().includes(q));
+  let html = '';
+  POOL_GROUPS.forEach(g => {
+    const items = filtered.filter(ex => ex.group === g);
+    if (!items.length) return;
+    html += `<div class="tpl-group-hdr">${escHtml(g)} <span>${items.length}</span></div>`;
+    html += items.map(ex => {
+      const included = tpl.exerciseIds.includes(ex.id);
+      return `
+        <div class="tpl-exercise-row${included ? ' included' : ''}"
+          onclick="toggleTplExercise('${tpl.id}','${ex.id}')">
+          <span class="ex-toggle">${included ? '✓' : ''}</span>
+          <span class="ex-name">${escHtml(ex.name)}</span>
+          <span class="ex-muscle">${escHtml(ex.muscle || '')}</span>
+        </div>`;
+    }).join('');
+  });
+  if (!html) html = '<div style="color:var(--text2);font-size:12px;padding:8px 2px">No exercises match your search.</div>';
+  return html;
+}
+
+function setTplSearch(v) {
+  tplPickerSearch = v;
+  const tpl = loadTemplates().find(t => t.id === editingTplId);
+  if (!tpl) return;
+  const c = document.getElementById('tplPicker');
+  if (c) c.innerHTML = renderPickerRows(tpl);
+}
+
 function renderTemplateList() {
   const templates = loadTemplates();
-  const exercises = loadExercises();
   const container = document.getElementById('templateList');
 
   if (templates.length === 0) {
     container.innerHTML = '<div style="color:var(--text2);font-size:13px;padding:10px 0">No templates yet. Create one to get started.</div>';
     return;
   }
+
+  const poolTotal = getExercisePool().length;
 
   container.innerHTML = templates.map(tpl => {
     const isEditing = editingTplId === tpl.id;
@@ -1332,17 +1456,13 @@ function renderTemplateList() {
           <div class="tpl-body">
             <input class="tpl-name-input" value="${escHtml(tpl.name)}"
               onchange="renameTemplate('${tpl.id}', this.value)" placeholder="Template name">
-            ${exercises.map(ex => {
-              const included = tpl.exerciseIds.includes(ex.id);
-              return `
-                <div class="tpl-exercise-row${included ? ' included' : ''}"
-                  onclick="toggleTplExercise('${tpl.id}','${ex.id}')">
-                  <span class="ex-toggle">${included ? '✓' : ''}</span>
-                  <span class="ex-name">${escHtml(ex.name)}</span>
-                  <span class="ex-muscle">${escHtml(ex.muscle)}</span>
-                </div>
-              `;
-            }).join('')}
+            <input class="tpl-search" value="${escHtml(tplPickerSearch)}"
+              oninput="setTplSearch(this.value)" placeholder="Search all exercises or muscles…">
+            <div class="tpl-picker-meta">
+              <span id="tplPickCount-${tpl.id}">${tpl.exerciseIds.length} selected</span>
+              <span>${poolTotal} exercises available</span>
+            </div>
+            <div class="tpl-picker" id="tplPicker">${renderPickerRows(tpl)}</div>
             <button class="tpl-delete-btn" onclick="deleteTemplate('${tpl.id}')">Delete Template</button>
           </div>
         ` : ''}
@@ -1389,7 +1509,19 @@ function toggleTplExercise(tplId, exId) {
     tpl.exerciseIds.push(exId);
   }
   saveTemplates(templates);
-  renderTemplateList();
+  // In-place refresh so search text + scroll position are preserved while picking.
+  const picker = document.getElementById('tplPicker');
+  if (picker) {
+    const scroll = picker.scrollTop;
+    picker.innerHTML = renderPickerRows(tpl);
+    picker.scrollTop = scroll;
+    const cnt = document.getElementById('tplPickCount-' + tplId);
+    if (cnt) cnt.textContent = tpl.exerciseIds.length + ' selected';
+    const hdr = document.querySelector('.tpl-card.editing .tpl-count');
+    if (hdr) hdr.textContent = tpl.exerciseIds.length + ' exercises';
+  } else {
+    renderTemplateList();
+  }
 }
 
 function deleteTemplate(tplId) {
