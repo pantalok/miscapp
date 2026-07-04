@@ -401,6 +401,62 @@
     padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 600;
     cursor: pointer; font-family: 'DM Sans', sans-serif; margin-top: 10px;
   }
+  /* === SESSION (follow a scheduled day's workout) === */
+  .session-back {
+    background: var(--surface2); border: 1px solid var(--border); color: var(--text);
+    border-radius: 10px; padding: 8px 14px; font-size: 13px; font-weight: 600;
+    cursor: pointer; font-family: 'DM Sans', sans-serif; margin: 4px 0 12px;
+  }
+  .session-head { margin-bottom: 14px; }
+  .session-title {
+    font-size: 20px; font-weight: 700; display: flex; align-items: center; gap: 10px;
+  }
+  .session-date { font-size: 13px; color: var(--text2); margin: 4px 0 10px; }
+  .session-progress { display: flex; align-items: center; gap: 10px; }
+  .session-bar {
+    flex: 1; height: 8px; background: var(--surface2); border-radius: 8px; overflow: hidden;
+  }
+  .session-bar-fill { height: 100%; border-radius: 8px; transition: width 0.25s; }
+  .session-progress span {
+    font-family: 'Space Mono', monospace; font-size: 12px; color: var(--text2); min-width: 40px;
+  }
+  .session-complete {
+    margin-top: 10px; background: rgba(68,255,136,0.12); color: var(--green);
+    border-radius: 10px; padding: 10px; text-align: center; font-weight: 700; font-size: 14px;
+  }
+  .sess-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 12px; margin-bottom: 10px; display: flex; gap: 12px; align-items: flex-start;
+  }
+  .sess-card.done { border-left: 3px solid var(--green); }
+  .sess-card.done .sess-name { opacity: 0.55; text-decoration: line-through; }
+  .sess-check {
+    flex-shrink: 0; width: 34px; height: 34px; border-radius: 50%;
+    border: 2px solid var(--border); background: var(--surface2); color: var(--green);
+    font-size: 18px; font-weight: 700; cursor: pointer; margin-top: 2px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .sess-check.checked { background: var(--green); border-color: var(--green); color: #0a0a0a; }
+  .sess-info { flex: 1; min-width: 0; }
+  .sess-name { font-size: 15px; font-weight: 600; }
+  .sess-meta { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 5px 0; }
+  .sess-target {
+    font-size: 11px; color: var(--accent); background: rgba(200,255,0,0.1);
+    padding: 2px 8px; border-radius: 12px; font-weight: 700; font-family: 'Space Mono', monospace;
+  }
+  .sess-instr { font-size: 12px; color: var(--text2); margin: 4px 0 2px; line-height: 1.5; }
+  .sess-video { display: inline-block; color: var(--blue); font-size: 12px; margin-top: 4px; text-decoration: none; }
+  .session-actions { display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap; }
+  .session-actions select {
+    flex: 1; min-width: 140px; background: var(--surface2); border: 1px solid var(--border);
+    color: var(--text); border-radius: 10px; padding: 9px 12px; font-size: 13px; font-family: 'DM Sans';
+  }
+  .session-clear {
+    background: rgba(255,68,68,0.15); border: none; color: var(--red);
+    padding: 9px 14px; border-radius: 10px; font-size: 13px; font-weight: 600;
+    cursor: pointer; font-family: 'DM Sans', sans-serif;
+  }
+  .cal-cell.cal-complete { box-shadow: inset 0 0 0 2px var(--green); }
   .cal-nav {
     display: flex; align-items: center; justify-content: space-between;
     padding: 10px 0; margin-bottom: 8px;
@@ -701,6 +757,12 @@
   <div style="height: 30px"></div>
 </div>
 
+<!-- SESSION PAGE (a scheduled day's workout, opened from the calendar) -->
+<div class="page" id="page-session">
+  <div id="sessionContent"></div>
+  <div style="height: 30px"></div>
+</div>
+
 <!-- TAB BAR -->
 <div class="tab-bar">
   <button class="tab active" data-page="page-guide">
@@ -789,7 +851,8 @@ function poolRepsNum(sets) { const m = String(sets == null ? '' : sets).match(/x
 
 function getExercisePool() {
   const core = loadExercises().map(e => Object.assign({}, e, {
-    group: poolCategory(e.name, e.muscle, 'core'), source: 'core'
+    group: poolCategory(e.name, e.muscle, 'core'), source: 'core',
+    target: e.defaultWeight ? (e.defaultWeight + ' lbs') : ''
   }));
   const seen = new Set(core.map(e => poolDedupKey(e.name)));
   const pool = core.slice();
@@ -800,6 +863,10 @@ function getExercisePool() {
     if (seen.has(key)) return;
     seen.add(key);
     const muscle = (mv.muscles && mv.muscles[0]) ? mv.muscles[0][0] : '';
+    const target = [mv.sets, mv.weight]
+      .map(x => String(x == null ? '' : x).trim())
+      .filter(x => x && x !== '—' && x !== '-')
+      .join(' · ');
     pool.push({
       id: poolSlug(mv.name),
       name: mv.name,
@@ -808,6 +875,7 @@ function getExercisePool() {
       defaultWeight: poolWeightNum(mv.weight),
       defaultReps: poolRepsNum(mv.sets),
       instructions: mv.note || '',
+      target: target,
       group: poolCategory(mv.name, muscle, origin), source: 'routine'
     });
   }
@@ -1565,6 +1633,8 @@ function renderCalendar() {
     html += '<div class="cal-cell empty"></div>';
   }
 
+  const sessDone = loadSessionDone();
+
   for (let d = 1; d <= daysInMonth; d++) {
     const dateStr = year + '-' + String(month + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0');
     const tplId = schedule[dateStr];
@@ -1572,19 +1642,31 @@ function renderCalendar() {
     const isSelected = selectedDays.has(dateStr);
     const isToday = dateStr === today;
 
+    // Fully-complete = every exercise in the assigned template checked off for that day.
+    let complete = false;
+    if (tpl && tpl.exerciseIds.length) {
+      const done = sessDone[dateStr] || {};
+      complete = tpl.exerciseIds.every(id => done[id]);
+    }
+
     let cls = 'cal-cell';
     if (isSelected) cls += ' selected';
     if (isToday) cls += ' today';
+    if (complete) cls += ' cal-complete';
+
+    // A scheduled day opens its workout session; an empty day is selectable for assignment.
+    const onClick = tpl ? `openSession('${dateStr}')` : `toggleDay('${dateStr}')`;
 
     html += `
-      <div class="${cls}" onclick="toggleDay('${dateStr}')">
+      <div class="${cls}" onclick="${onClick}">
         <span class="cal-day">${d}</span>
-        ${tpl ? '<span class="cal-dot" style="background:' + getTplColor(tplId) + '">' + tpl.name[0] + '</span>' : ''}
+        ${tpl ? '<span class="cal-dot" style="background:' + getTplColor(tplId) + '">' + (complete ? '✓' : tpl.name[0]) + '</span>' : ''}
       </div>
     `;
   }
 
   html += '</div>';
+  html += '<div style="font-size:12px;color:var(--text2);margin-top:10px;line-height:1.5">Tap a <b style="color:var(--text)">scheduled day</b> to start & check off its workout. Tap empty days to assign a template below.</div>';
 
   if (selectedDays.size > 0) {
     html += `
@@ -1640,6 +1722,118 @@ function clearScheduleForSelected() {
   showToast('✓ Schedule cleared');
   selectedDays.clear();
   renderCalendar();
+}
+
+// ========================
+// WORKOUT SESSION (follow a scheduled day + check off exercises)
+// ========================
+let sessionDate = null;
+
+function loadSessionDone() {
+  const d = localStorage.getItem('gymlog_session_done');
+  return d ? JSON.parse(d) : {};
+}
+function saveSessionDone(x) { localStorage.setItem('gymlog_session_done', JSON.stringify(x)); }
+function isSessionExDone(date, exId) {
+  const day = loadSessionDone()[date];
+  return !!(day && day[exId]);
+}
+
+function openSession(dateStr) {
+  sessionDate = dateStr;
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-session').classList.add('active');
+  // Keep the Plan tab visually active since the session belongs to the calendar.
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.page === 'page-plan'));
+  renderSessionPage();
+}
+function closeSession() { switchToTab('page-plan'); }
+
+function toggleSessionEx(exId) {
+  const all = loadSessionDone();
+  const day = all[sessionDate] || (all[sessionDate] = {});
+  if (day[exId]) delete day[exId]; else day[exId] = true;
+  if (Object.keys(day).length === 0) delete all[sessionDate];
+  saveSessionDone(all);
+  renderSessionPage();
+}
+
+function changeSessionTpl(v) {
+  if (!v) return;
+  const s = loadSchedule();
+  s[sessionDate] = v;
+  saveSchedule(s);
+  renderSessionPage();
+}
+function clearSessionDay() {
+  if (!confirm('Remove this workout from ' + sessionDate + '?')) return;
+  const s = loadSchedule();
+  delete s[sessionDate];
+  saveSchedule(s);
+  showToast('✓ Removed from calendar');
+  closeSession();
+}
+
+function renderSessionPage() {
+  const container = document.getElementById('sessionContent');
+  const schedule = loadSchedule();
+  const tplId = schedule[sessionDate];
+  const tpl = tplId ? loadTemplates().find(t => t.id === tplId) : null;
+  const dateLabel = new Date(sessionDate + 'T00:00:00').toLocaleDateString('en-US',
+    { weekday: 'long', month: 'long', day: 'numeric' });
+
+  if (!tpl) {
+    container.innerHTML = `<button class="session-back" onclick="closeSession()">← Calendar</button>
+      <div style="color:var(--text2);font-size:14px;padding:20px 0">No workout scheduled for ${dateLabel}.</div>`;
+    return;
+  }
+
+  const pool = getExercisePool();
+  const exs = tpl.exerciseIds.map(id => pool.find(e => e.id === id)).filter(Boolean);
+  const doneCount = exs.filter(e => isSessionExDone(sessionDate, e.id)).length;
+  const pct = exs.length ? Math.round(doneCount / exs.length * 100) : 0;
+  const color = getTplColor(tplId);
+
+  let html = `<button class="session-back" onclick="closeSession()">← Calendar</button>
+    <div class="session-head">
+      <div class="session-title"><span class="cal-dot" style="background:${color}">${tpl.name[0]}</span>${escHtml(tpl.name)}</div>
+      <div class="session-date">${dateLabel}</div>
+      <div class="session-progress">
+        <div class="session-bar"><div class="session-bar-fill" style="width:${pct}%;background:${color}"></div></div>
+        <span>${doneCount}/${exs.length}</span>
+      </div>
+      ${(exs.length && doneCount === exs.length) ? '<div class="session-complete">🎉 Workout complete — nice work!</div>' : ''}
+    </div>`;
+
+  if (!exs.length) {
+    html += `<div style="color:var(--text2);font-size:14px;padding:10px 0">This template has no exercises yet. Add some in the Plan tab.</div>`;
+  } else {
+    html += exs.map(ex => {
+      const done = isSessionExDone(sessionDate, ex.id);
+      return `<div class="sess-card${done ? ' done' : ''}">
+        <button class="sess-check${done ? ' checked' : ''}" onclick="toggleSessionEx('${ex.id}')">${done ? '✓' : ''}</button>
+        <div class="sess-info">
+          <div class="sess-name">${escHtml(ex.name)}</div>
+          <div class="sess-meta">
+            ${ex.muscle ? `<span class="muscle-tag">${escHtml(ex.muscle)}</span>` : ''}
+            ${ex.target ? `<span class="sess-target">${escHtml(ex.target)}</span>` : ''}
+          </div>
+          ${ex.instructions ? `<div class="sess-instr">${escHtml(ex.instructions)}</div>` : ''}
+          ${ex.videoUrl ? `<a class="sess-video" href="${escHtml(ex.videoUrl)}" target="_blank" rel="noopener">▶ Watch video</a>` : ''}
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  html += `<div class="session-actions">
+      <select onchange="changeSessionTpl(this.value)">
+        <option value="">Change template…</option>
+        ${loadTemplates().map(t => `<option value="${t.id}"${t.id === tplId ? ' selected' : ''}>${escHtml(t.name)}</option>`).join('')}
+      </select>
+      <button class="session-clear" onclick="clearSessionDay()">Remove from day</button>
+    </div>`;
+
+  container.innerHTML = html;
 }
 
 function switchToTab(pageId) {
