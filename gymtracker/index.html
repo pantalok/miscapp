@@ -401,6 +401,49 @@
     padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 600;
     cursor: pointer; font-family: 'DM Sans', sans-serif; margin-top: 10px;
   }
+  .tpl-subhead {
+    font-family: 'Space Mono', monospace; font-size: 11px; color: var(--accent-dim);
+    text-transform: uppercase; letter-spacing: 1px; margin: 16px 2px 8px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .tpl-subcount {
+    background: var(--surface2); color: var(--text2); border-radius: 10px;
+    padding: 1px 8px; font-size: 9px; letter-spacing: 0;
+  }
+  .tpl-import-row { display: flex; gap: 8px; }
+  .tpl-import-row select {
+    flex: 1; min-width: 0; background: var(--bg); border: 1px solid var(--border);
+    color: var(--text); border-radius: 8px; padding: 9px 10px; font-size: 13px; font-family: 'DM Sans';
+  }
+  .tpl-import-btn {
+    background: var(--accent); color: #0a0a0a; border: none; border-radius: 8px;
+    padding: 9px 16px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: 'DM Sans';
+  }
+  .tpl-import-btn:active { background: var(--accent-dim); }
+  .tpl-empty-sel {
+    color: var(--text2); font-size: 12px; padding: 10px 12px; line-height: 1.5;
+    background: var(--surface2); border-radius: 8px; border: 1px dashed var(--border);
+  }
+  .tpl-sel-row {
+    display: flex; align-items: center; gap: 8px; padding: 8px 10px; margin-bottom: 4px;
+    background: var(--surface2); border-radius: 8px; border-left: 3px solid var(--accent);
+  }
+  .tpl-sel-num {
+    font-family: 'Space Mono', monospace; font-size: 11px; color: var(--text2);
+    min-width: 18px; text-align: center;
+  }
+  .tpl-sel-name { flex: 1; font-size: 14px; min-width: 0; }
+  .tpl-sel-muscle {
+    font-size: 9px; color: var(--accent); background: rgba(200,255,0,0.1);
+    padding: 2px 6px; border-radius: 10px; font-weight: 700; text-transform: uppercase;
+  }
+  .tpl-sel-btn {
+    background: var(--bg); border: 1px solid var(--border); color: var(--text2);
+    width: 28px; height: 28px; border-radius: 7px; font-size: 14px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .tpl-sel-btn:active { background: var(--border); color: var(--text); }
+  .tpl-sel-btn.rm:active { color: var(--red); }
   /* === SESSION (follow a scheduled day's workout) === */
   .session-back {
     background: var(--surface2); border: 1px solid var(--border); color: var(--text);
@@ -1496,6 +1539,99 @@ function setTplSearch(v) {
   if (c) c.innerHTML = renderPickerRows(tpl);
 }
 
+// Dropdown of every Week x · Day y from the 3-day program, for importing into a template.
+function programDayOptions() {
+  let opts = '';
+  guideWorkout3.forEach((wk, wi) => {
+    wk.days.forEach((day, di) => {
+      const label = day.label.replace(/\s*\(Day \d+\)\s*/, '').trim();
+      opts += `<option value="${wi}:${di}">Week ${wk.week} · Day ${day.day} — ${escHtml(label)}</option>`;
+    });
+  });
+  return opts;
+}
+
+// Map any move name to the matching pool exercise id (by normalized name).
+function poolIdByName() {
+  const map = {};
+  getExercisePool().forEach(e => { map[poolDedupKey(e.name)] = e.id; });
+  return map;
+}
+
+function importDayToTemplate(tplId, val) {
+  if (!val) { showToast('Pick a Week / Day first'); return; }
+  const parts = val.split(':');
+  const wk = guideWorkout3[parseInt(parts[0])];
+  const day = wk ? wk.days[parseInt(parts[1])] : null;
+  if (!day) return;
+  const templates = loadTemplates();
+  const tpl = templates.find(t => t.id === tplId);
+  if (!tpl) return;
+  const map = poolIdByName();
+  let added = 0;
+  day.moves.forEach(m => {
+    if (m.name === 'Dynamic Warmup' || m.name === 'Cooldown') return; // section markers, not exercises
+    const id = map[poolDedupKey(m.name)];
+    if (id && !tpl.exerciseIds.includes(id)) { tpl.exerciseIds.push(id); added++; }
+  });
+  saveTemplates(templates);
+  showToast(`✓ Imported ${added} from Week ${wk.week} · Day ${day.day}`);
+  renderTemplateList();
+}
+
+// The ordered contents of a template, with reorder + remove controls.
+function renderTemplateSelected(tpl) {
+  if (!tpl.exerciseIds.length) {
+    return '<div class="tpl-empty-sel">No exercises yet — import a program day above, or add from the list below.</div>';
+  }
+  const byId = {};
+  getExercisePool().forEach(e => { byId[e.id] = e; });
+  return tpl.exerciseIds.map((id, i) => {
+    const ex = byId[id];
+    if (!ex) return '';
+    return `<div class="tpl-sel-row">
+      <span class="tpl-sel-num">${i + 1}</span>
+      <span class="tpl-sel-name">${escHtml(ex.name)}</span>
+      <span class="tpl-sel-muscle">${escHtml(ex.muscle || '')}</span>
+      <button class="tpl-sel-btn" onclick="moveTplExercise('${tpl.id}',${i},-1)" title="Move up">↑</button>
+      <button class="tpl-sel-btn" onclick="moveTplExercise('${tpl.id}',${i},1)" title="Move down">↓</button>
+      <button class="tpl-sel-btn rm" onclick="toggleTplExercise('${tpl.id}','${id}')" title="Remove">✕</button>
+    </div>`;
+  }).join('');
+}
+
+function moveTplExercise(tplId, i, dir) {
+  const templates = loadTemplates();
+  const tpl = templates.find(t => t.id === tplId);
+  if (!tpl) return;
+  const j = i + dir;
+  if (j < 0 || j >= tpl.exerciseIds.length) return;
+  const a = tpl.exerciseIds;
+  const tmp = a[i]; a[i] = a[j]; a[j] = tmp;
+  saveTemplates(templates);
+  refreshTplEditor(tplId);
+}
+
+// Partial refresh of the editing card: updates the ordered list, the picker, and counts
+// in place so search text, focus, and scroll position are preserved while editing.
+function refreshTplEditor(tplId) {
+  const tpl = loadTemplates().find(t => t.id === tplId);
+  if (!tpl) { renderTemplateList(); return; }
+  const sel = document.getElementById('tplSelected');
+  const picker = document.getElementById('tplPicker');
+  if (!sel && !picker) { renderTemplateList(); return; }
+  if (sel) sel.innerHTML = renderTemplateSelected(tpl);
+  if (picker) {
+    const scroll = picker.scrollTop;
+    picker.innerHTML = renderPickerRows(tpl);
+    picker.scrollTop = scroll;
+  }
+  const cnt = document.getElementById('tplSelCount-' + tplId);
+  if (cnt) cnt.textContent = tpl.exerciseIds.length + ' exercises';
+  const hdr = document.querySelector('.tpl-card.editing .tpl-count');
+  if (hdr) hdr.textContent = tpl.exerciseIds.length + ' exercises';
+}
+
 function renderTemplateList() {
   const templates = loadTemplates();
   const container = document.getElementById('templateList');
@@ -1524,13 +1660,21 @@ function renderTemplateList() {
           <div class="tpl-body">
             <input class="tpl-name-input" value="${escHtml(tpl.name)}"
               onchange="renameTemplate('${tpl.id}', this.value)" placeholder="Template name">
+
+            <div class="tpl-subhead">Import a program day</div>
+            <div class="tpl-import-row">
+              <select id="tplImportSel"><option value="">Pick Week / Day…</option>${programDayOptions()}</select>
+              <button class="tpl-import-btn" onclick="importDayToTemplate('${tpl.id}', document.getElementById('tplImportSel').value)">Import</button>
+            </div>
+
+            <div class="tpl-subhead">Your template <span class="tpl-subcount" id="tplSelCount-${tpl.id}">${tpl.exerciseIds.length} exercises</span></div>
+            <div id="tplSelected">${renderTemplateSelected(tpl)}</div>
+
+            <div class="tpl-subhead">Add exercises <span class="tpl-subcount">${poolTotal} available</span></div>
             <input class="tpl-search" value="${escHtml(tplPickerSearch)}"
               oninput="setTplSearch(this.value)" placeholder="Search all exercises or muscles…">
-            <div class="tpl-picker-meta">
-              <span id="tplPickCount-${tpl.id}">${tpl.exerciseIds.length} selected</span>
-              <span>${poolTotal} exercises available</span>
-            </div>
             <div class="tpl-picker" id="tplPicker">${renderPickerRows(tpl)}</div>
+
             <button class="tpl-delete-btn" onclick="deleteTemplate('${tpl.id}')">Delete Template</button>
           </div>
         ` : ''}
@@ -1577,19 +1721,7 @@ function toggleTplExercise(tplId, exId) {
     tpl.exerciseIds.push(exId);
   }
   saveTemplates(templates);
-  // In-place refresh so search text + scroll position are preserved while picking.
-  const picker = document.getElementById('tplPicker');
-  if (picker) {
-    const scroll = picker.scrollTop;
-    picker.innerHTML = renderPickerRows(tpl);
-    picker.scrollTop = scroll;
-    const cnt = document.getElementById('tplPickCount-' + tplId);
-    if (cnt) cnt.textContent = tpl.exerciseIds.length + ' selected';
-    const hdr = document.querySelector('.tpl-card.editing .tpl-count');
-    if (hdr) hdr.textContent = tpl.exerciseIds.length + ' exercises';
-  } else {
-    renderTemplateList();
-  }
+  refreshTplEditor(tplId);
 }
 
 function deleteTemplate(tplId) {
@@ -1876,7 +2008,11 @@ const guideWarmup=[
   {name:"Leg swings",reps:"10 each leg",note:"Front-to-back, hold something for balance",muscles:[["Hip flexors","amber"],["Hamstrings","blue"]],yt:"https://www.youtube.com/shorts/G2WyCoVwv8Y"},
   {name:"Leg openers or 90/90s",reps:"10 each leg / each way",note:"Hip mobility drill",muscles:[["Hips","purple"],["Glutes","purple"]],yt:"https://www.youtube.com/shorts/npdpCtfPI5I"},
   {name:"Squat (assisted if needed)",reps:"8 reps",note:"Bodyweight, hold rack if needed",muscles:[["Quads","blue"],["Glutes","purple"]],yt:"https://www.youtube.com/results?search_query=bodyweight+squat+form+tutorial+beginner+short"},
-  {name:"Plank core activation",reps:"< 30 seconds",note:"Hold steady, breathe normally",muscles:[["Core","amber"],["Shoulders","pink"]],yt:"https://www.youtube.com/results?search_query=plank+core+activation+warmup+30+seconds+beginner"}
+  {name:"Plank core activation",reps:"< 30 seconds",note:"Hold steady, breathe normally",muscles:[["Core","amber"],["Shoulders","pink"]],yt:"https://www.youtube.com/results?search_query=plank+core+activation+warmup+30+seconds+beginner"},
+  {name:"Elliptical",reps:"5-10 minutes",note:"Steady, easy pace to raise the heart rate",muscles:[["Cardio","red"],["Full body","gray"]],yt:"https://www.youtube.com/results?search_query=elliptical+warm+up+cardio+beginner"},
+  {name:"Running (treadmill or outdoor)",reps:"5-10 minutes",note:"Easy jog to warm up; build pace gradually",muscles:[["Cardio","red"],["Legs","blue"]],yt:"https://www.youtube.com/results?search_query=easy+jog+treadmill+warm+up+beginner"},
+  {name:"Stationary Bike",reps:"5-10 minutes",note:"Light resistance, steady comfortable spin",muscles:[["Cardio","red"],["Legs","blue"]],yt:"https://www.youtube.com/results?search_query=stationary+bike+warm+up+cardio+beginner"},
+  {name:"Rowing Machine",reps:"5 minutes",note:"Smooth strokes, moderate pace",muscles:[["Cardio","red"],["Full body","gray"]],yt:"https://www.youtube.com/results?search_query=rowing+machine+warm+up+technique+beginner"}
 ];
 const guideCooldown=[
   {name:"Low intensity cardio",reps:"5 minutes",note:"Walk or easy bike to lower heart rate",muscles:[["Cardio","red"]],yt:"https://www.youtube.com/results?search_query=5+minute+cool+down+walk+after+workout"},
